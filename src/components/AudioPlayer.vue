@@ -1,6 +1,5 @@
 <template>
 	<div id="audio-player">
-		<audio ref="player" id="player" v-on:ended="onAudioEnded" controls></audio>
 		<div class="row">
 			<div class="col-sm-9">
 				<h3>Audio Player</h3>
@@ -9,29 +8,33 @@
 				<b-btn v-if="tracks.length" v-on:click="onEmptyClick">empty playlist</b-btn>
 			</div>
 		</div>
+		<audio-controls :file="currentFile" :autoPlay="true" :onAudioEnded="onAudioEnded" />
 		<p v-if="!tracks.length">add some tracks below to start listening!</p>
 		<table class="table draggable-table">
-		<draggable
-			id="playlist"
-			v-model="tracks"
-			:element="'tbody'"
-			:class="playlistClass"
-			:options="{group: 'tracks'}"
-			@start="drag=true"
-			@end="drag=false"
-			:move="onDragMove">
-			<tr v-for="t in tracks" v-bind:class="{active: isActiveTrack(t)}">
-				<td><span v-on:click="onTrackClick(t)">{{t.title}}</span></td>
-				<td>{{secondsFormatted(t.length)}}</td>
-				<td><b-btn @click="onRemoveClick(t)"><span class="fa fa-minus"></span></b-btn></td>
-				<td v-if="user.logged_in">
-					<input type="checkbox" :name="t.id" :checked="t.is_checked" v-on:click="toggleChecklist">
-				</td>
-				<td v-if="user.logged_in">
-					<input type="checkbox" :name="t.id" :checked="t.is_favorite" v-on:click="toggleFavorite">
-				</td>
-			</tr>
-		</draggable>
+			<draggable
+				id="playlist"
+				v-model="tracks"
+				:element="'tbody'"
+				:class="playlistClass"
+				:options="{group: 'tracks'}"
+				@start="drag=true"
+				@end="drag=false"
+				:move="onDragMove">
+				<tr v-for="(t, idx) in tracks" :class="[(t.id === currentTrackId) ? 'active' : '', 'track']">
+					<td>
+						<audio preload="auto" :src="t.file" style="display: none;" @canplaythrough="onAudioLoaded(t)" />
+						<span class="title" v-on:click="onTrackClick(t)">{{t.title}}</span>
+					</td>
+					<td>{{secondsFormatted(t.length)}}</td>
+					<td><b-btn @click="onRemoveClick(t)"><span class="fa fa-minus"></span></b-btn></td>
+					<td v-if="user.logged_in">
+						<input type="checkbox" :name="t.id" :checked="t.is_checked" v-on:click="toggleChecklist">
+					</td>
+					<td v-if="user.logged_in">
+						<input type="checkbox" :name="t.id" :checked="t.is_favorite" v-on:click="toggleFavorite">
+					</td>
+				</tr>
+			</draggable>
 		</table>
 	</div>
 </template>
@@ -40,14 +43,21 @@
 import {mapState, mapGetters, mapActions} from 'vuex';
 import draggable from 'vuedraggable';
 
+import AudioTrack from './AudioTrack.vue';
+import AudioControls from './AudioControls.vue';
+
 export default {
 	components: {
 		draggable,
+		AudioTrack,
+		AudioControls
 	},
 	data: function () {
 		return {
 			currentTrackId: null,
 			currentTrack: null,
+			currentFile: null,
+			//playFile: false,
 		}
 	},
 	computed: {
@@ -93,12 +103,14 @@ export default {
 		onTrackClick: function (t) {
 			console.log('AudioPlayer::onTrackClick', t);
 			
-			const player = this.$refs.player;
+			//const player = this.$refs.player;
 			
 			this.currentTrackId = t.id;
+			//this.playFile = true;
+			this.currentFile = t.file;
 			
-			player.src = t.file;
-			player.play();
+			//player.src = t.file;
+			//player.play();
 		},
 		
 		onRemoveClick: function (t) {
@@ -114,7 +126,7 @@ export default {
 		onAudioEnded: function (e) {
 			console.log('AudioPlayer::onAudioEnded'); //, this.track_ids);
 			
-			const player = this.$refs.player;
+			//const player = this.$refs.player;
 			const curr_index = this.track_ids.indexOf(this.currentTrackId);
 			
 			console.log('curr_index: ' + (curr_index + 1) + ' of ' + this.track_ids.length);
@@ -126,15 +138,20 @@ export default {
 				console.log('next: ' + next.title);
 				
 				this.currentTrackId = next.id;
+				this.currentFile = next.file;
 				
-				player.src = next.file;
-				player.play();
+				//player.src = next.file;
+				//player.play();
 				
-			} else {console.log('no more tracks');}
+			} else {
+				console.log('no more tracks');
+				this.currentTrackId = null;
+				this.currentFile = null;
+			}
 		},
 		
-		isActiveTrack: function (t) {
-			return (t.id === this.currentTrackId);
+		onAudioLoaded: function(t) {
+			console.log('track ' + t.id + ' loaded')
 		},
 		
 		// prevent drag from playlist back to show
@@ -167,6 +184,7 @@ export default {
 
 <style lang="scss">
 @import "compass/css3";
+@import "../assets/scss/variables.scss";
 
 #audio-player {}
 
@@ -190,8 +208,19 @@ export default {
 			height: 200px;
 		}
 	}
-}
-audio {
-	display: none;
+	
+	.track {
+		
+		.title {
+			display: block;
+			cursor: pointer;
+		}
+		
+		&.active {
+			.title {
+				color: $blue;
+			}
+		}
+	}
 }
 </style>

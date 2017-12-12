@@ -85,14 +85,7 @@ import {mapState, mapGetters, mapActions} from 'vuex';
 import draggable from 'vuedraggable';
 
 export default {
-	props: {
-		recording: {
-			type: Object
-		},
-		idx: {
-			type: Number,
-		}
-	},
+	props: ['recording', 'idx'],
 	components: {
 		draggable,
 	},
@@ -167,7 +160,7 @@ export default {
 		},
 	},
 	created () {
-		console.log('Recording::created', this.$props.idx);
+		console.log('Recording::created', this.$props.recording.id, this.$props.idx);
 	},
 	mounted: function() {
 		//console.log('Recording::mounted $el: ', this.$el);

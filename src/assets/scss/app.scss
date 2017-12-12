@@ -1,0 +1,104 @@
+@import "compass/css3";
+
+@import "../assets/scss/variables.scss";
+@import "../assets/scss/typography.scss";
+@import "~bootstrap/scss/bootstrap";
+@import "~bootstrap-vue/dist/bootstrap-vue.css";
+@import "../assets/scss/font-awesome/font-awesome.scss";
+
+#app {
+	
+	table {
+		tbody {
+			tr {
+				td {
+					padding-top: .6em;
+					padding-bottom: .4em;
+			
+					a {
+						display: block;
+					}
+				}
+			}
+		}
+		&.draggable-table {
+			tbody {
+				tr {
+					cursor: move;
+					
+					td {
+						.btn {
+							cursor: pointer;
+						}
+					}
+				}
+			}
+		}
+		&.b-table {
+			thead {
+				tr {
+					th {
+						&.sorting::before {display: none;}
+						&.sorting::after {
+							@include fa-icon();
+							content: $fa-var-sort;
+							bottom: auto;
+							top: 0;
+							@include translateY(50%);
+						}
+						&.sorting_desc::after {
+							content: $fa-var-caret-down;
+							opacity: 1;
+						}
+						&.sorting_asc::after {
+							content: $fa-var-caret-up;
+							opacity: 1;
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	.left-pane {
+		
+		a {
+			color: $red;
+			
+			&:hover, &:focus, &:active {
+				color: darken($red, 30%);
+			}
+		}
+		
+		.table {
+			tbody {
+				tr {
+					&:hover { background-color: $red-hover; }
+					&.sortable-chosen {}
+					&.sortable-ghost {}
+				}
+			}
+		}
+	}
+		
+	.right-pane {
+		
+		a {
+			color: $blue;
+			
+			&:hover, &:focus, &:active {
+				color: darken($blue, 30%);
+			}
+		}
+		
+		.table {
+			tbody {
+				tr {
+					&:hover { background-color: $blue-hover; }
+					&.sortable-chosen {}
+					&.sortable-ghost {}
+				}
+			}
+		}
+	}
+}
