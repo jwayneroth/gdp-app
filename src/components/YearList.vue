@@ -52,7 +52,7 @@ export default {
 				cursor: pointer;
 				
 				&:hover {
-					background-color: #efefef;
+					background-color: #ffeeee;
 				}
 			}
 		}

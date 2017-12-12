@@ -1,29 +1,59 @@
 <template>
-	<div class="recording">
-		<div v-if="recording">
-			<h3>{{recording.title}}</h3>
-			<!--<p>{{recording.archive_identifier}}</p>-->
-			<b-btn v-b-toggle="recording.id + '-description'" class="btn btn-link">
-				<span class="opened">hide</span>
-				<span class="closed">show</span>
-				description
-			</b-btn>
-			<div v-if="user.logged_in">
-				<input type="checkbox" :name="'favorite-' + recording.id" :checked="recording.is_favorite" v-on:click="toggleShowFavorite">favorite recording
-				<input type="checkbox" :name="'check-' + recording.id" :checked="recording.is_checked" v-on:click="toggleShowChecklist">add recording to checklist
+	<div class="recording-root">
+		<div v-if="recording" :id="'recording-' + recording.id">
+			<div class="row">
+				<div class="col-sm-9">
+					<h3>{{recording.title}}</h3>
+				</div>
+				<div class="col-sm-3">
+					<b-form v-if="user.logged_in">
+						<div class="form-check">
+							<label class="form-check-label">
+								<input type="checkbox" class="form-check-input" :name="'check-' + recording.id" :checked="recording.is_checked" v-on:click="toggleShowChecklist">
+								checklist
+							</label>
+						</div>
+						<div class="form-check">
+							<label class="form-check-label">
+								<input type="checkbox" class="form-check-input" :name="'favorite-' + recording.id" :checked="recording.is_favorite" v-on:click="toggleShowFavorite">
+								favorite
+							</label>
+						</div>
+					</b-form>
+				</div>
 			</div>
-			<b-collapse :id="recording.id + '-description'">
+			<div>rating: {{recording.average_rating}} / {{recording.reviews_count}} reviews</div>
+			<div class="row">
+				<div class="col-sm-9">
+					<b-btn v-b-toggle="'details-' + idx" variant="primary">details</b-btn>
+					<b-btn v-b-toggle="'description-' + idx" variant="primary">description<!--<span class="opened">hide</span><span class="closed">show</span>--></b-btn>
+				</div>
+				<div class="col-sm-3">
+					<b-btn class="add-all-btn" @click="onAddAllClick">add all tracks</b-btn>
+				</div>
+			</div>
+			<b-collapse :id="'details-' + idx">
+				<b-card>
+					<dl class="row">
+						<dt class="col-sm-3">archive id</dt><dd class="col-sm-9">{{recording.archive_identifier}}</dd>
+						<dt class="col-sm-3">source</dt><dd class="col-sm-9">{{recording.source}}</dd>
+						<dt class="col-sm-3">lineage</dt><dd class="col-sm-9">{{recording.lineage}}</dd>
+						<dt class="col-sm-3">transferer</dt><dd class="col-sm-9">{{recording.transferer}}</dd>
+						<dt class="col-sm-3">taper</dt><dd class="col-sm-9">{{recording.taper}}</dd>
+					</dl>
+				</b-card>
+			</b-collapse>
+			<b-collapse :id="'description-' + idx">
 				<b-card>
 					<div v-html="recording.description"></div>
 				</b-card>
 			</b-collapse>
-			<table class="table">
+			<table class="table draggable-table recording-tracks-table">
 				<thead>
 					<tr>
-						<th>tracks</th>
-						<th><button class="btn btn-default add-all-btn" v-on:click="onAddAllClick">add all tracks</button></th>
-						<th v-if="user.logged_in">add to checklist</th>
-						<th v-if="user.logged_in">add to favorites</th>
+						<th>track</th><th>length</th><th></th>
+						<th v-if="user.logged_in">checklist</th>
+						<th v-if="user.logged_in">favorites</th>
 					</tr>
 				</thead>
 				<draggable
@@ -32,11 +62,11 @@
 					:options="{group:'tracks'}"
 					@start="drag=true"
 					@end="drag=false"
-					:move="onDragMove"
-					>
+					:move="onDragMove">
 					<tr v-for="(t, idx) in recording.Tracks">
 						<td><span>{{t.title}}</span></td>
-						<td><button class="btn btn-default add-btn" v-on:click="onAddClick(t)">+</button></td>
+						<td>{{secondsFormatted(t.length)}}</td>
+						<td><b-btn class="add-btn" v-on:click="onAddClick(t)"><span class="fa fa-plus"></span></b-btn></td>
 						<td v-if="user.logged_in">
 							<input type="checkbox" :name="t.id" :checked="t.is_checked" v-on:click="toggleChecklist">
 						</td>
@@ -58,6 +88,9 @@ export default {
 	props: {
 		recording: {
 			type: Object
+		},
+		idx: {
+			type: Number,
 		}
 	},
 	components: {
@@ -88,6 +121,11 @@ export default {
 		},
 	},
 	methods: {
+		secondsFormatted: function(secs) {
+			const m = Math.floor(secs/60);
+			const s = '0' + (secs - m * 60);
+			return m + ':' + s.substr(s.length - 2);
+		},
 		
 		onAddAllClick: function(e) {
 			console.log('Recording::onAddAllClick', this.recording.Tracks);
@@ -129,15 +167,15 @@ export default {
 		},
 	},
 	created () {
-		console.log('Recording::created', this.$props.recording);
+		console.log('Recording::created', this.$props.idx);
 	},
 	mounted: function() {
-		console.log('Recording::mounted $el: ', this.$el);
+		//console.log('Recording::mounted $el: ', this.$el);
 	}
 }
 </script>
 
-<style>
+<style lang="scss">
 .collapsed > .opened,
 :not(.collapsed) > .closed {
   display: none;

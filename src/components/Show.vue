@@ -1,8 +1,8 @@
 <template>
 	<div class="recordings">
-		<!--<router-link class="" to="/">back to years</router-link> / <router-link class="" :to="'/years/' + show.year">{{show.year}}</router-link>-->
-		<div v-for="r in recordings">
-			<recording :recording="r"></recording>
+		<breadcrumb/>
+		<div v-for="(val, idx) in recordings">
+			<recording :recording="val" :idx="idx"></recording>
 		</div>
 	</div>
 </template>
@@ -11,10 +11,12 @@
 import {mapState, mapGetters, mapActions} from 'vuex';
 
 import Recording from './Recording.vue';
+import Breadcrumb from './Breadcrumb.vue';
 
 export default {
 	components: {
-		Recording
+		Recording,
+		Breadcrumb
 	},
 	data: function () {
 		return {}

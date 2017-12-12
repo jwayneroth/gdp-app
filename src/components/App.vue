@@ -1,16 +1,18 @@
 <template>
 	<div id="app">
 		<header id="header" ref="header">
-			<b-navbar>
-				<b-navbar-brand to="/">gdp</b-navbar-brand>
-				<b-navbar-nav class="">
-					<b-nav-item v-if="!user.logged_in" ref="login_toggle" @click="toggleForm('login')">Login</b-nav-item>
-					<b-nav-item v-if="!user.logged_in" ref="register_toggle" @click="toggleForm('register')">Register</b-nav-item>
-					<b-nav-item v-if="user.logged_in" to="/user">{{user.username}}</b-nav-item>
-					<b-nav-item v-if="user.logged_in" @click="logout">Logout</b-nav-item>
-				</b-navbar-nav>
-			</b-navbar>
-			<user-forms :activeForm="active_form" :onResize="onHeaderResize" ref="user_forms"></user-forms>
+			<div class="container-fluid">
+				<b-navbar>
+					<b-navbar-brand to="/">gdp</b-navbar-brand>
+					<b-navbar-nav class="">
+						<b-nav-item v-if="!user.logged_in" ref="login_toggle" @click="toggleForm('login')">Login</b-nav-item>
+						<b-nav-item v-if="!user.logged_in" ref="register_toggle" @click="toggleForm('register')">Register</b-nav-item>
+						<b-nav-item v-if="user.logged_in" to="/user">{{user.username}}</b-nav-item>
+						<b-nav-item v-if="user.logged_in" @click="logout">Logout</b-nav-item>
+					</b-navbar-nav>
+				</b-navbar>
+				<user-forms :activeForm="active_form" :onResize="onHeaderResize" ref="user_forms"></user-forms>
+			</div>
 		</header>
 		<main id="main" ref="main" :style="styles.main">
 			<resizable-panel left_name="Library" right_name="Player">
@@ -87,7 +89,7 @@ export default {
 			if (logged_in === true) {
 				if (this.active_form !== null) {
 					this.active_form = null;
-					setTimeout(this.resize, 150);
+					setTimeout(this.resize, 250);
 				}
 			}
 		},
@@ -110,12 +112,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "compass/css3";
-
-@import "../assets/scss/variables.scss";
-@import "../assets/scss/typography.scss";
-@import "~bootstrap/scss/bootstrap";
-@import "~bootstrap-vue/dist/bootstrap-vue.css";
+@import "../assets/scss/app.scss";
 
 html {
 	font-size: 75%;

@@ -6,7 +6,9 @@
 			<div ref="left_pane" :class="[left_open ? 'open' : 'closed', 'pane', 'left-pane']" :style="style.left_pane">
 				<button v-if="left_open" class="pane-btn pane-close-btn" v-on:click="closeLeft">X</button>
 				<div class="inner">
-					<slot name="left-pane"></slot>
+					<div class="container-fluid">
+						<slot name="left-pane"></slot>
+					</div>
 				</div>
 			</div>
 			<div v-if="resizable" ref="resizer" :class="resizer_class" :style="style.resizer" @mousedown.stop.prevent="handleDown">
@@ -15,7 +17,9 @@
 			<div ref="right_pane" :class="[right_open ? 'open' : 'closed', 'pane', 'right-pane']" :style="style.right_pane">
 				<button v-if="right_open" class="pane-btn pane-close-btn" v-on:click="closeRight">X</button>
 				<div class="inner">
-					<slot name="right-pane"></slot>
+					<div class="container-fluid">
+						<slot name="right-pane"></slot>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -164,9 +168,7 @@ export default {
 
 <style lang="scss">
 @import "compass/css3";
-
-$red: rgb(255,100,100);
-$blue: rgb(120,120,255);
+@import "../assets/scss/variables.scss";
 
 $resizer-width: 15;
 
@@ -228,32 +230,16 @@ $resizer-width: 15;
 		&.open {}
 		&.closed {}
 		
+		.pane-close-btn {
+		
+		}
+		
 		&.left-pane {
 			z-index: 3;
-			
-			a {
-				color: $red;
-				
-				&:hover, &:focus, &:active {
-					color: darken($red, 30%);
-				}
-			}
 		}
 		
 		&.right-pane {
 			z-index: 1;
-			
-			a {
-				color: $blue;
-				
-				&:hover, &:focus, &:active {
-					color: darken($blue, 30%);
-				}
-			}
-		}
-		
-		.pane-close-btn {
-		
 		}
 		
 		.inner {

@@ -1,37 +1,38 @@
 <template>
 	<div id="audio-player">
 		<audio ref="player" id="player" v-on:ended="onAudioEnded" controls></audio>
-		<h3>Audio Player</h3>
-		<div class="table">
-			<div class="thead">
-				<div class="tr">
-					<div class="th">tracks</div>
-					<div class="th"><button v-if="tracks.length" class="btn btn-link empty-btn" v-on:click="onEmptyClick">empty playlist</button></div>
-				</div>
+		<div class="row">
+			<div class="col-sm-9">
+				<h3>Audio Player</h3>
+			</div>
+			<div class="col-sm-3">
+				<b-btn v-if="tracks.length" v-on:click="onEmptyClick">empty playlist</b-btn>
 			</div>
 		</div>
-		<div v-if="!tracks.length">
-			<p>add some tracks to the player to start listening!</p>
-		</div>
+		<p v-if="!tracks.length">add some tracks below to start listening!</p>
+		<table class="table draggable-table">
 		<draggable
-			id="tracks-draggable"
+			id="playlist"
 			v-model="tracks"
-			:element="'ul'"
-			class="table"
+			:element="'tbody'"
+			:class="playlistClass"
 			:options="{group: 'tracks'}"
 			@start="drag=true"
 			@end="drag=false"
-			:move="onDragMove"
-		>
-			<li
-				v-for="t in tracks"
-				v-bind:class="{active: isActiveTrack(t)}"
-				class="tr"
-			>
-				<div class="td"><span v-on:click="onTrackClick(t)">{{t.title}}</span></div>
-				<div class="td"><button class="btn btn-default remove-btn" v-on:click="onRemoveClick(t)">-</button></div>
-			</li>
+			:move="onDragMove">
+			<tr v-for="t in tracks" v-bind:class="{active: isActiveTrack(t)}">
+				<td><span v-on:click="onTrackClick(t)">{{t.title}}</span></td>
+				<td>{{secondsFormatted(t.length)}}</td>
+				<td><b-btn @click="onRemoveClick(t)"><span class="fa fa-minus"></span></b-btn></td>
+				<td v-if="user.logged_in">
+					<input type="checkbox" :name="t.id" :checked="t.is_checked" v-on:click="toggleChecklist">
+				</td>
+				<td v-if="user.logged_in">
+					<input type="checkbox" :name="t.id" :checked="t.is_favorite" v-on:click="toggleFavorite">
+				</td>
+			</tr>
 		</draggable>
+		</table>
 	</div>
 </template>
 
@@ -46,27 +47,49 @@ export default {
 	data: function () {
 		return {
 			currentTrackId: null,
-			currentTrack: null
+			currentTrack: null,
 		}
 	},
 	computed: {
 		...mapState({
+			user: 'user',
+			track_stars: state => state.user.track_stars,
+			track_checks: state => state.user.track_checks,
 			track_ids: state => state.playlist.track_ids,
 			tracks_by_id: state => state.playlist.tracks_by_id,
 		}),
 		tracks: {
-			get () {
-				return this.track_ids.map((t) => this.tracks_by_id[t]);
+			get() {
+				let tracks = this.track_ids.map((t) => Object.assign({},this.tracks_by_id[t]));
+				if (this.user.logged_in) {
+					tracks.forEach((val) => {
+						val.is_favorite = (this.track_stars.indexOf(val.id) !== -1);
+						val.is_checked = (this.track_checks.indexOf(val.id) !== -1);
+					});
+				}
+				return tracks;
 			},
 			set(val) {
 				this.$store.commit('UPDATE_PLAYLIST', {tracks: val})
 			}
 		},
+		playlistClass: function() {
+			let c = '';
+			if (!this.tracks.length) c += ' empty';
+			return c;
+		},
 	},
 	methods: {
+		secondsFormatted: function(secs) {
+			const m = Math.floor(secs/60);
+			const s = '0' + (secs - m * 60);
+			return m + ':' + s.substr(s.length - 2);
+		},
+		
 		onEmptyClick: function() {
 			this.$store.commit('EMPTY_PLAYLIST')
 		},
+		
 		onTrackClick: function (t) {
 			console.log('AudioPlayer::onTrackClick', t);
 			
@@ -77,6 +100,7 @@ export default {
 			player.src = t.file;
 			player.play();
 		},
+		
 		onRemoveClick: function (t) {
 			console.log('AudioPlayer::onRemoveClick', t);
 			
@@ -86,6 +110,7 @@ export default {
 			}
 			this.$store.commit('REMOVE_TRACK', {track_id: t.id})
 		},
+		
 		onAudioEnded: function (e) {
 			console.log('AudioPlayer::onAudioEnded'); //, this.track_ids);
 			
@@ -107,13 +132,25 @@ export default {
 				
 			} else {console.log('no more tracks');}
 		},
+		
 		isActiveTrack: function (t) {
 			return (t.id === this.currentTrackId);
 		},
+		
 		// prevent drag from playlist back to show
 		onDragMove: function (evt) {
 			//console.log('AudioPlayer::onDragMove', evt);
-			if (evt.to.id !== 'tracks-draggable') return false;
+			if (evt.to.id !== 'playlist') return false;
+		},
+		
+		toggleFavorite(evt) {
+			console.log('toggleFavorite', evt.target.name);
+			this.$store.dispatch('set_favorite_track', parseInt(evt.target.name));
+		},
+		
+		toggleChecklist(evt) {
+			console.log('toggleChecklist', evt.target.name);
+			this.$store.dispatch('set_checklist_track', parseInt(evt.target.name));
 		},
 	},
 	watch: {
@@ -129,22 +166,32 @@ export default {
 </script>
 
 <style lang="scss">
-#audio-player {
-	.tr {
+@import "compass/css3";
+
+#audio-player {}
+
+#playlist {
+	min-height: 250px;
+	margin: 0;
+	padding: 0;
+	padding-bottom: 3em;
+	position: relative;
+	left: 0; top: 0;
+	
+	&:after {
+		content: '';
 		display: table-row;
-		.th, .td {
-			display: table-cell;
-			padding: .75rem;
+		height: 50px;
+	}
+	
+	&.empty {
+		&:after {
+			display: table-row;
+			height: 200px;
 		}
 	}
-	#tracks-draggable {
-		min-height: 250px;
-		margin: 0;
-		padding: 0;
-		padding-bottom: 3em;
-	}
-	audio {
-		display: none;
-	}
+}
+audio {
+	display: none;
 }
 </style>

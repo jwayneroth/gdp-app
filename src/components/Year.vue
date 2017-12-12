@@ -1,11 +1,11 @@
 <template>
-	<div class="year">
+	<div class="year" ref="year">
 		<router-link class="" to="/">back to years</router-link>
 		<h3 class="">{{$route.params.year}}</h3>
-		<b-table responsive stacked="md" :fields="fields" :items="shows">
-			<template slot="title" slot-scope="data">
+		<b-table ref="shows_table" responsive stacked="md" :fields="fields" :items="shows" @row-clicked="rowClick">
+			<!--<template slot="title" slot-scope="data">
 				<router-link :to="'/shows/' + data.item.id">{{data.item.title}}</router-link>
-			</template>
+			</template>-->
 			<template slot="checklist" slot-scope="data">
 				<input type="checkbox" :name="data.item.id" :checked="data.item.is_checked" v-on:click="toggleShowChecklist">
 			</template>
@@ -20,9 +20,8 @@
 import { mapState, mapGetters, mapActions } from 'vuex';
 
 export default {
-	data: function () {
+	data: function() {
 		return {
-			
 		}
 	},
 	computed: {
@@ -37,8 +36,9 @@ export default {
 				{ key: 'date', label: 'date', formatter: 'displayDate', sortable: true},
 				{ key: 'title', label: 'venue'},
 				{ key: 'recording_count', label: 'recordings', sortable: true},
-				// TODO: add average_track_count to Show models
-				//{ key: 'track_count', label: 'tracks', formatter: val => parseInt(val, 10), sortable: true},
+				{ key: 'average_track_count', label: '~tracks', sortable: true},
+				{ key: 'average_rating', label: '~rating', formatter: v => parseInt(v, 10), sortable: true},
+				{ key: 'has_soundboard', label: 'sbd', formatter: v => (v) ? '<span class="fa fa-check"></span>' : ''},
 			];
 			if (this.user.logged_in) arr.push({ key: 'checklist', label: 'checklist'}, { key: 'favorite', label: 'favorite'},);
 			return arr;
@@ -66,20 +66,24 @@ export default {
 		},
 	},
 	methods: {
-		displayDate: function (dd) {
+		displayDate: function(dd) {
 			const t = dd.split('-');
 			return t[1] + '/' + t[2] + '/' + t[0].substring(2);
 		},
 		
-		toggleShowFavorite(evt) {
+		toggleShowFavorite: function(evt) {
 			this.$store.dispatch('set_favorite_show', parseInt(evt.target.name));
 		},
 		
-		toggleShowChecklist(evt) {
+		toggleShowChecklist: function(evt) {
 			this.$store.dispatch('set_checklist_show', parseInt(evt.target.name));
 		},
+		
+		rowClick: function(item, idx, evt) {
+			this.$router.push('/shows/' + item.id);
+		},
 	},
-	created () {
+	created: function() {
 		console.log('Year::created', this.$route.params.year);
 		
 		this.$store.dispatch('getShowsForYear', this.$route.params.year);
@@ -87,6 +91,18 @@ export default {
 }
 </script>
 
-<style>
-
+<style lang="scss">
+.year {
+	table {
+		tbody {
+			tr {
+				cursor: pointer;
+			}
+			td {
+				//padding-top: .6em;
+				//padding-bottom: .4em;
+			}
+		}
+	}
+}
 </style>
