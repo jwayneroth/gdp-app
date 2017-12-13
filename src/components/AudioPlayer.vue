@@ -8,7 +8,7 @@
 				<b-btn v-if="tracks.length" v-on:click="onEmptyClick">empty playlist</b-btn>
 			</div>
 		</div>
-		<audio-controls :file="currentFile" :autoPlay="true" :onAudioEnded="onAudioEnded" />
+		<audio-controls :track="currentTrack" :file="currentFile" :autoPlay="true" :onAudioEnded="onAudioEnded" />
 		<p v-if="!tracks.length">add some tracks below to start listening!</p>
 		<table class="table draggable-table">
 			<draggable
@@ -106,6 +106,7 @@ export default {
 			//const player = this.$refs.player;
 			
 			this.currentTrackId = t.id;
+			this.currentTrack = t;
 			//this.playFile = true;
 			this.currentFile = t.file;
 			
@@ -118,7 +119,9 @@ export default {
 			
 			if (t.id === this.currentTrackId) {
 				this.$refs.player.pause();
+				this.currentTrack = null;
 				this.currentTrackId = null;
+				this.currentFile = null;
 			}
 			this.$store.commit('REMOVE_TRACK', {track_id: t.id})
 		},
@@ -139,6 +142,7 @@ export default {
 				
 				this.currentTrackId = next.id;
 				this.currentFile = next.file;
+				this.currentTrack = next;
 				
 				//player.src = next.file;
 				//player.play();
@@ -146,6 +150,7 @@ export default {
 			} else {
 				console.log('no more tracks');
 				this.currentTrackId = null;
+				this.currentTrack = null;
 				this.currentFile = null;
 			}
 		},

@@ -1,25 +1,25 @@
 <template>
 	<div class="audio-controls-wrapper">
 		<div class="inner">
-			<b-btn-toolbar class="d-flex justify-content-center">
-				<b-button-group class="mw-25 mx-2">
-					<b-btn @click="stop()"><span class="fa fa-stop"/></b-btn>
-					<b-btn @click="pause()"><span :class="[ paused ? 'fa fa-play' : 'fa fa-pause' ]"/></b-btn>
+			<b-btn-toolbar class="toolbar">
+				<b-button-group class="play-wrapper mx-2">
+					<!--<b-btn @click="stop()"><span class="fa fa-stop"/></b-btn>-->
+					<b-btn @click="onPrevClick"><span :class="[ paused ? 'active' : '', 'fa-backward', 'fa']"/></b-btn>
+					<b-btn @click="pause()"><span :class="[ paused ? 'fa-play' : 'fa-pause', 'fa']"/></b-btn>
+					<b-btn @click="onNextClick"><span :class="[ paused ? 'active' : '', 'fa-forward', 'fa']"/></b-btn>
 				</b-button-group>
-				<b-button-group class="w-40 mx-2">
+				<div class="progress-wrapper mx-2">
+					<div>
+						<span v-if="track">{{track.title}}</span>&nbsp;<span class="time-current">{{currentTime}}</span><span class="time-separator">:</span><span class="time-total">{{duration}}</span>
+					</div>
 					<b-btn v-on:click="setPosition" class="playback-time-wrapper">
 						<div v-bind:style="progressStyle" class="playback-time-indicator"></div>
-						<span class="playback-time-current">{{currentTime}}</span>
-						<span class="playback-time-separator"></span>
-						<span class="playback-time-total">{{duration}}</span>
 					</b-btn>
-				</b-button-group>
-				<b-input-group class="mw-25 mx-2">
-					<b-input-group-button slot="left">
-						<b-btn @click="mute()"><span :class="[isMuted ? 'fa-volume-off': 'fa-volume-up', 'fa']"/></b-btn>
-						<!--<a @click="download()" class="fa fa-download"></a>-->
-					</b-input-group-button>
-					<b-form-input type="range" orient="horizontal" v-model.lazy="volumeValue" v-on:change="updateVolume()" min="0" max="100" class="volume-slider"/>
+				</div>
+				<b-input-group class="vol-wrapper mx-2">
+					<b-btn @click="mute()"><span :class="[isMuted ? 'fa-volume-off': 'fa-volume-up', 'fa']"/></b-btn>
+					<!--<a @click="download()" class="fa fa-download"></a>-->
+					<b-form-input type="range" v-model.lazy="volumeValue" v-on:change="updateVolume()" min="0" max="100" class="mx-1"/>
 				</b-input-group>
 			</b-btn-toolbar>
 		</div>
@@ -30,7 +30,7 @@
 <script>
 
 let audio, uuid;
-const baseVolumeValue = 50;
+const baseVolumeValue = 75;
 const generateUUID = () => {
 	return 'xxxxxxxx-xxxx-4xxx'.replace(/[xy]/g, function (c) {
 		let v, r;
@@ -46,9 +46,12 @@ const convertTimeHHMMSS = (val) => {
 export default {
 	name: 'audio-controls',
 	props: {
+		track: { type: Object, default: null },
 		file: { type: String, default: null },
 		autoPlay: { type: Boolean, default: false },
-		onAudioEnded: { type: Function, default: e => null},
+		onAudioEnded: { type: Function, default: null },
+		onPrevClick: { type: Function, default: null },
+		onNextClick: { type: Function, default: null },
 	},
 	computed: {
 		duration: function () {
@@ -74,49 +77,46 @@ export default {
 	},
 	methods: {
 		setPosition: function name (e) {
-			let tag = e.target
-			if (this.paused) return
-			
-			if (e.target.tagName === 'SPAN') {
-				return
-			}
-			const pos = tag.getBoundingClientRect()
-			const seekPos = (e.clientX - pos.left) / pos.width
-			this.audio.currentTime = parseInt(this.audio.duration * seekPos)
+			let tag = e.target;
+			if (this.paused) return;
+			if (e.target.tagName === 'SPAN') return;
+			const pos = tag.getBoundingClientRect();
+			const seekPos = (e.clientX - pos.left) / pos.width;
+			this.audio.currentTime = parseInt(this.audio.duration * seekPos);
 		},
 		updateVolume: function () {
-			this.audio.volume = this.volumeValue / 100
+			this.audio.volume = this.volumeValue / 100;
 			if (this.volumeValue / 100 > 0) {
-				this.isMuted = this.audio.muted = false
+				this.isMuted = this.audio.muted = false;
 			}
 			if (this.volumeValue / 100 === 0) {
-				this.isMuted = this.audio.muted = true
+				this.isMuted = this.audio.muted = true;
 			}
 		},
 		stop: function () {
-			this.playing = false
-			this.paused = true
-			this.audio.pause()
-			this.audio.currentTime = 0
+			this.playing = false;
+			this.paused = true;
+			this.audio.pause();
+			this.audio.currentTime = 0;
 		},
 		play: function (force = false) {
-			if (this.playing && !force) return
-			this.paused = false
-			this.audio.play()
-			this.playing = true
+			if (this.playing && !force) return;
+			this.paused = false;
+			this.audio.play();
+			this.playing = true;
 		},
 		pause: function () {
 			this.paused = !this.paused;
-			(this.paused) ? this.audio.pause() : this.audio.play()
+			(this.paused) ? this.audio.pause() : this.audio.play();
 		},
 		download: function () {
-			this.stop()
-			window.open(this.file, 'download')
+			this.stop();
+			window.open(this.file, 'download');
 		},
 		mute: function () {
-			this.isMuted = !this.isMuted
-			this.audio.muted = this.isMuted
-			this.volumeValue = this.isMuted ? 0 : 75
+			this.isMuted = !this.isMuted;
+			this.audio.muted = this.isMuted;
+			this.volumeValue = this.isMuted ? 0 : 75;
 		},
 		_handleLoaded: function () {
 			if (this.audio.readyState >= 2) {
@@ -131,46 +131,48 @@ export default {
 			}
 		},
 		_handlePlayingUI: function (e) {
-			let currTime = parseInt(this.audio.currentTime)
-			let percentage = parseInt((currTime / this.totalDuration) * 100)
-			this.progressStyle = `width:${percentage}%;`
-			this.currentTime = convertTimeHHMMSS(currTime)
+			let currTime = parseInt(this.audio.currentTime);
+			let percentage = parseInt((currTime / this.totalDuration) * 100);
+			this.progressStyle = `width:${percentage}%;`;
+			this.currentTime = convertTimeHHMMSS(currTime);
 		},
 		_handlePlayPause: function (e) {
 			if (e.type === 'pause' && this.playing === false) {
-				this.progressStyle = `width:0%;`
-				this.currentTime = '00:00'
-				this.paused = true
+				this.progressStyle = `width:0%;`;
+				this.currentTime = '00:00';
+				this.paused = true;
 			}
 		},
 		init: function () {
-			this.audio.addEventListener('timeupdate', this._handlePlayingUI)
-			this.audio.addEventListener('loadeddata', this._handleLoaded)
-			this.audio.addEventListener('pause', this._handlePlayPause)
-			this.audio.addEventListener('play', this._handlePlayPause)
-			this.audio.addEventListener('ended', this.$props.onAudioEnded)
+			this.audio.addEventListener('timeupdate', this._handlePlayingUI);
+			this.audio.addEventListener('loadeddata', this._handleLoaded);
+			this.audio.addEventListener('pause', this._handlePlayPause);
+			this.audio.addEventListener('play', this._handlePlayPause);
+			this.audio.addEventListener('ended', this.$props.onAudioEnded);
 		},
 		getAudio: function () {
-			return this.$el.querySelectorAll('audio')[0]
+			return this.$el.querySelectorAll('audio')[0];
 		}
 	},
 	mounted: function () {
 		console.log('AudioControls::mounted');
-		this.uuid = generateUUID()
-		this.audio = this.getAudio()
-		this.init()
+		this.uuid = generateUUID();
+		this.audio = this.getAudio();
+		this.init();
 	},
 	beforeDestroy: function () {
-		this.audio.removeEventListener('timeupdate', this._handlePlayingUI)
-		this.audio.removeEventListener('loadeddata', this._handleLoaded)
-		this.audio.removeEventListener('pause', this._handlePlayPause)
-		this.audio.removeEventListener('play', this._handlePlayPause)
+		this.audio.removeEventListener('timeupdate', this._handlePlayingUI);
+		this.audio.removeEventListener('loadeddata', this._handleLoaded);
+		this.audio.removeEventListener('pause', this._handlePlayPause);
+		this.audio.removeEventListener('play', this._handlePlayPause);
 	}
 }
 </script>
 
 <style lang="scss">
-.audio-controls-wrapper {
+@import "../assets/scss/variables.scss";
+
+/*.audio-controls-wrapper {
 	.inner {
 		height: 30px;
 		line-height: 30px;
@@ -193,42 +195,48 @@ export default {
 			.volume-toggle {
 				position: relative;
 
-				/*.volume-slider {
+				.volume-slider {
 					cursor: pointer;
 					position: absolute;
 					top: 0;
 					width: 80px;
 					left: 24px;
-				}*/
+				}
 			}
 		}
+	}
+}*/
 
-		.playback-time-wrapper {
-			background: transparent;
-			position: relative;
-			//width: 250px;
-			display: inline-block;
-			background: #e0dcd7;
-			height: 3px;
-			cursor: pointer;
-			font-size: 14px;
-			vertical-align: middle;
+.audio-controls-wrapper {
+	
+	.toolbar {
+		> div {
+		}
+		
+		.progress-wrapper {
+			min-width: 200px;
+		}
+		
+		.vol-wrapper {
+			max-width: 150px;
+		}
+	}
 
-			.playback-time-separator::after {
-					content:' : ';
-			}
+	.playback-time-wrapper {
+		background: transparent;
+		position: relative;
+		left: 0; top: 0;
+		width: 100%;
+		display: inline-block;
+		height: 3px;
+		cursor: pointer;
 
-			.playback-time-total {
-
-			}
-
-			.playback-time-indicator {
-					background: #5099ff;
-					position: absolute;
-					top: 0;
-					left: 0;
-					bottom: 0;
-			}
+		.playback-time-indicator {
+			background: $blue;
+			position: absolute;
+			top: 0;
+			left: 0;
+			bottom: 0;
 		}
 	}
 }
