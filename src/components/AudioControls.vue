@@ -4,13 +4,13 @@
 			<b-btn-toolbar class="toolbar">
 				<b-button-group class="play-wrapper mx-2">
 					<!--<b-btn @click="stop()"><span class="fa fa-stop"/></b-btn>-->
-					<b-btn @click="onPrevClick"><span :class="[ paused ? 'active' : '', 'fa-backward', 'fa']"/></b-btn>
-					<b-btn @click="pause()"><span :class="[ paused ? 'fa-play' : 'fa-pause', 'fa']"/></b-btn>
-					<b-btn @click="onNextClick"><span :class="[ paused ? 'active' : '', 'fa-forward', 'fa']"/></b-btn>
+					<b-btn @click="onPrevClick" :disabled="onPrevClick === null"><span :class="[ paused ? 'active' : '', 'fa-backward', 'fa']"/></b-btn>
+					<b-btn @click="pause"><span :class="[paused ? 'fa-play' : 'fa-pause', 'fa']"/></b-btn>
+					<b-btn @click="onNextClick" :disabled="onNextClick === null"><span :class="[ paused ? 'active' : '', 'fa-forward', 'fa']"/></b-btn>
 				</b-button-group>
 				<div class="progress-wrapper mx-2">
 					<div>
-						<span v-if="track">{{track.title}}</span>&nbsp;<span class="time-current">{{currentTime}}</span><span class="time-separator">:</span><span class="time-total">{{duration}}</span>
+						<span v-if="title">{{title}}</span>&nbsp;<span class="time-current">{{currentTime}}</span><span class="time-separator">:</span><span class="time-total">{{duration}}</span>
 					</div>
 					<b-btn v-on:click="setPosition" class="playback-time-wrapper">
 						<div v-bind:style="progressStyle" class="playback-time-indicator"></div>
@@ -46,12 +46,13 @@ const convertTimeHHMMSS = (val) => {
 export default {
 	name: 'audio-controls',
 	props: {
-		track: { type: Object, default: null },
+		title: { type: String, default: null },
 		file: { type: String, default: null },
 		autoPlay: { type: Boolean, default: false },
 		onAudioEnded: { type: Function, default: null },
 		onPrevClick: { type: Function, default: null },
 		onNextClick: { type: Function, default: null },
+		onEmptyPlay: { type: Function, default: () => null },
 	},
 	computed: {
 		duration: function () {
@@ -100,12 +101,19 @@ export default {
 			this.audio.currentTime = 0;
 		},
 		play: function (force = false) {
+			console.log('AudioControls::play');
 			if (this.playing && !force) return;
 			this.paused = false;
 			this.audio.play();
 			this.playing = true;
 		},
 		pause: function () {
+			console.log('AudioControls::pause');
+			if (!this.file) {
+				console.log('play called without file!');
+				this.onEmptyPlay();
+				return;
+			}
 			this.paused = !this.paused;
 			(this.paused) ? this.audio.pause() : this.audio.play();
 		},
@@ -122,7 +130,6 @@ export default {
 			if (this.audio.readyState >= 2) {
 				if (this.autoPlay) {
 					this.play(true);
-					//this.audio.play()
 				}
 				this.loaded = true
 				this.totalDuration = parseInt(this.audio.duration)
@@ -155,7 +162,7 @@ export default {
 		}
 	},
 	mounted: function () {
-		console.log('AudioControls::mounted');
+		console.log('AudioControls::mounted', this.file);
 		this.uuid = generateUUID();
 		this.audio = this.getAudio();
 		this.init();

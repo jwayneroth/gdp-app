@@ -2,7 +2,11 @@
 	<div class="recordings">
 		<breadcrumb/>
 		<div v-for="(val, idx) in recordings">
-			<recording :recording="val" :idx="idx"></recording>
+			<recording v-if="idx === 0" :recording="val" :idx="idx" :start-open="true" />
+			<div v-else class="mb-2">
+				<h3 v-if="idx === 1" class="my-2">additional recordings</h3>
+				<recording :recording="val" :idx="idx" :start-open="false" />
+			</div>
 		</div>
 	</div>
 </template>

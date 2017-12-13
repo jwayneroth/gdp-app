@@ -5,10 +5,18 @@ $font-family-sans-serif: $montserratregular;
 $black: rgb(10,0,0);
 $red: rgb(255,100,100);
 $blue: rgb(120,120,255);
-$red-hover: #ffeeee;
-$blue-hover: #eeeeff;
+$red-hover: lighten($red, 18%); //#ffeeee;
+$blue-hover: lighten($blue, 18%); //#eeeeff;
 
-$primary: $black;
+$primary: $red;
+$secondary: $blue;
+//$success: $green;
+//$info: $cyan;
+//$warning: $yellow;
+//$danger: $red;
+//$light: $gray-100;
+//$dark: $gray-800;
+
 $link-hover-decoration: none;
 
 //

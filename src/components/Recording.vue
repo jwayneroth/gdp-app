@@ -24,12 +24,17 @@
 			</div>
 			<div>rating: {{recording.average_rating}} / {{recording.reviews_count}} reviews</div>
 			<div class="row">
-				<div class="col-sm-9">
+				<div class="col-sm-6">
 					<b-btn v-b-toggle="'details-' + idx" variant="primary">details</b-btn>
 					<b-btn v-b-toggle="'description-' + idx" variant="primary">description<!--<span class="opened">hide</span><span class="closed">show</span>--></b-btn>
 				</div>
-				<div class="col-sm-3">
-					<b-btn class="add-all-btn" @click="onAddAllClick">add all tracks</b-btn>
+				<div class="col-sm-6">
+					<b-btn v-b-toggle="'tracks-' + idx" variant="primary">
+						<span class="opened">hide</span>
+						<span class="closed">show</span>
+						tracks
+					</b-btn>
+					<b-btn class="add-all-btn" variant="primary" @click="onAddAllClick">add all tracks</b-btn>
 				</div>
 			</div>
 			<b-collapse :id="'details-' + idx">
@@ -48,34 +53,36 @@
 					<div v-html="recording.description"></div>
 				</b-card>
 			</b-collapse>
-			<table class="table draggable-table recording-tracks-table">
-				<thead>
-					<tr>
-						<th>track</th><th>length</th><th></th>
-						<th v-if="user.logged_in">checklist</th>
-						<th v-if="user.logged_in">favorites</th>
-					</tr>
-				</thead>
-				<draggable
-					v-model="tracks"
-					:element="'tbody'"
-					:options="{group:'tracks'}"
-					@start="drag=true"
-					@end="drag=false"
-					:move="onDragMove">
-					<tr v-for="(t, idx) in recording.Tracks">
-						<td><span>{{t.title}}</span></td>
-						<td>{{secondsFormatted(t.length)}}</td>
-						<td><b-btn class="add-btn" v-on:click="onAddClick(t)"><span class="fa fa-plus"></span></b-btn></td>
-						<td v-if="user.logged_in">
-							<input type="checkbox" :name="t.id" :checked="t.is_checked" v-on:click="toggleChecklist">
-						</td>
-						<td v-if="user.logged_in">
-							<input type="checkbox" :name="t.id" :checked="t.is_favorite" v-on:click="toggleFavorite">
-						</td>
-					</tr>
-				</draggable>
-			</table>
+			<b-collapse :id="'tracks-' + idx" :visible="startOpen">
+				<table class="table draggable-table recording-tracks-table">
+					<thead>
+						<tr>
+							<th>track</th><th>length</th><th></th>
+							<th v-if="user.logged_in">checklist</th>
+							<th v-if="user.logged_in">favorites</th>
+						</tr>
+					</thead>
+					<draggable
+						v-model="tracks"
+						:element="'tbody'"
+						:options="{group:'tracks'}"
+						@start="drag=true"
+						@end="drag=false"
+						:move="onDragMove">
+						<tr v-for="(t, idx) in recording.Tracks">
+							<td><span>{{t.title}}</span></td>
+							<td>{{secondsFormatted(t.length)}}</td>
+							<td><b-btn class="add-btn" variant="primary" v-on:click="onAddClick(t)"><span class="fa fa-plus"></span></b-btn></td>
+							<td v-if="user.logged_in">
+								<input type="checkbox" :name="t.id" :checked="t.is_checked" v-on:click="toggleChecklist">
+							</td>
+							<td v-if="user.logged_in">
+								<input type="checkbox" :name="t.id" :checked="t.is_favorite" v-on:click="toggleFavorite">
+							</td>
+						</tr>
+					</draggable>
+				</table>
+			</b-collapse>
 		</div>
 	</div>
 </template>
@@ -85,7 +92,7 @@ import {mapState, mapGetters, mapActions} from 'vuex';
 import draggable from 'vuedraggable';
 
 export default {
-	props: ['recording', 'idx'],
+	props: ['recording', 'idx', 'startOpen'],
 	components: {
 		draggable,
 	},

@@ -8,7 +8,15 @@
 				<b-btn v-if="tracks.length" v-on:click="onEmptyClick">empty playlist</b-btn>
 			</div>
 		</div>
-		<audio-controls :track="currentTrack" :file="currentFile" :autoPlay="true" :onAudioEnded="onAudioEnded" />
+		<audio-controls
+			:title="currentTitle"
+			:file="currentFile"
+			:autoPlay="true"
+			:onAudioEnded="onAudioEnded"
+			:onNextClick="(!isLast) ? onNextClick : null"
+			:onPrevClick="(!isFirst) ? onPrevClick : null"
+			:onEmptyPlay="onEmptyPlay"
+		/>
 		<p v-if="!tracks.length">add some tracks below to start listening!</p>
 		<table class="table draggable-table">
 			<draggable
@@ -20,7 +28,7 @@
 				@start="drag=true"
 				@end="drag=false"
 				:move="onDragMove">
-				<tr v-for="(t, idx) in tracks" :class="[(t.id === currentTrackId) ? 'active' : '', 'track']">
+				<tr v-for="(t, idx) in tracks" :class="[(currentTrack && t.id === currentTrack.id) ? 'active' : '', 'track']">
 					<td>
 						<audio preload="auto" :src="t.file" style="display: none;" @canplaythrough="onAudioLoaded(t)" />
 						<span class="title" v-on:click="onTrackClick(t)">{{t.title}}</span>
@@ -54,10 +62,7 @@ export default {
 	},
 	data: function () {
 		return {
-			currentTrackId: null,
 			currentTrack: null,
-			currentFile: null,
-			//playFile: false,
 		}
 	},
 	computed: {
@@ -68,6 +73,20 @@ export default {
 			track_ids: state => state.playlist.track_ids,
 			tracks_by_id: state => state.playlist.tracks_by_id,
 		}),
+		currentTitle: function() { return (this.currentTrack) ? this.currentTrack.title : null },
+		currentFile: function() { return (this.currentTrack) ? this.currentTrack.file: null },
+		isLast: function() {
+			if (!this.currentTrack) return true;
+			const idx = this.track_ids.indexOf(this.currentTrack.id);
+			if (idx === (this.track_ids.length -1)) return true;
+			return false;
+		},
+		isFirst: function() {
+			if (!this.currentTrack) return true;
+			const idx = this.track_ids.indexOf(this.currentTrack.id);
+			if (idx === 0) return true;
+			return false;
+		},
 		tracks: {
 			get() {
 				let tracks = this.track_ids.map((t) => Object.assign({},this.tracks_by_id[t]));
@@ -103,65 +122,60 @@ export default {
 		onTrackClick: function (t) {
 			console.log('AudioPlayer::onTrackClick', t);
 			
-			//const player = this.$refs.player;
-			
-			this.currentTrackId = t.id;
 			this.currentTrack = t;
-			//this.playFile = true;
-			this.currentFile = t.file;
-			
-			//player.src = t.file;
-			//player.play();
+		},
+		
+		onNextClick: function() {
+			if (!this.currentTrack) return;
+			const curr_index = this.track_ids.indexOf(this.currentTrack.id);
+			if ((curr_index + 1) <= (this.track_ids.length - 1)) {
+				const next = this.tracks_by_id[this.track_ids[curr_index + 1]];
+				this.currentTrack = next;
+			}
+		},
+		
+		onPrevClick: function() {
+			if (!this.currentTrack) return;
+			const curr_index = this.track_ids.indexOf(this.currentTrack.id);
+			if (curr_index > 0) {
+				const next = this.tracks_by_id[this.track_ids[curr_index - 1]];
+				this.currentTrack = next;
+			}
 		},
 		
 		onRemoveClick: function (t) {
 			console.log('AudioPlayer::onRemoveClick', t);
 			
-			if (t.id === this.currentTrackId) {
-				this.$refs.player.pause();
+			if (this.currentTrack && t.id === this.currentTrack.id) {
 				this.currentTrack = null;
-				this.currentTrackId = null;
-				this.currentFile = null;
 			}
 			this.$store.commit('REMOVE_TRACK', {track_id: t.id})
 		},
 		
 		onAudioEnded: function (e) {
-			console.log('AudioPlayer::onAudioEnded'); //, this.track_ids);
+			console.log('AudioPlayer::onAudioEnded');
 			
-			//const player = this.$refs.player;
-			const curr_index = this.track_ids.indexOf(this.currentTrackId);
+			if (!this.currentTrack) return;
 			
-			console.log('curr_index: ' + (curr_index + 1) + ' of ' + this.track_ids.length);
+			const curr_index = this.track_ids.indexOf(this.currentTrack.id);
 			
 			if ((curr_index + 1) <= (this.track_ids.length - 1)) {
 				
 				const next = this.tracks_by_id[this.track_ids[curr_index + 1]];
-				
-				console.log('next: ' + next.title);
-				
-				this.currentTrackId = next.id;
-				this.currentFile = next.file;
 				this.currentTrack = next;
 				
-				//player.src = next.file;
-				//player.play();
-				
 			} else {
-				console.log('no more tracks');
-				this.currentTrackId = null;
+				
 				this.currentTrack = null;
-				this.currentFile = null;
 			}
 		},
 		
-		onAudioLoaded: function(t) {
-			console.log('track ' + t.id + ' loaded')
+		onAudioLoaded: function(track) {
+			console.log('track ' + track.id + ' loaded');
 		},
 		
 		// prevent drag from playlist back to show
 		onDragMove: function (evt) {
-			//console.log('AudioPlayer::onDragMove', evt);
 			if (evt.to.id !== 'playlist') return false;
 		},
 		
@@ -174,16 +188,13 @@ export default {
 			console.log('toggleChecklist', evt.target.name);
 			this.$store.dispatch('set_checklist_track', parseInt(evt.target.name));
 		},
-	},
-	watch: {
-		'tracks': function (new_tracks, old_tracks) {
-			console.log('AudioPlayer tracks change');
 		
+		onEmptyPlay: function() {
+			console.log('AudioPlayer::onEmptyPlay', this.tracks.length, this.tracks_by_id);
+			if (!this.tracks.length) return;
+			this.onTrackClick(this.tracks_by_id[this.track_ids[0]]);
 		},
-	},
-	created: function () {
-		console.log('AudioPlayer::created', this.track_ids);
-	},
+	}
 }
 </script>
 

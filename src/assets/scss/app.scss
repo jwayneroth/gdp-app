@@ -63,10 +63,10 @@
 	.left-pane {
 		
 		a {
-			color: $red;
+			//color: $red;
 			
 			&:hover, &:focus, &:active {
-				color: darken($red, 30%);
+				//color: darken($red, 30%);
 			}
 		}
 		
@@ -84,10 +84,10 @@
 	.right-pane {
 		
 		a {
-			color: $blue;
+			//color: $blue;
 			
 			&:hover, &:focus, &:active {
-				color: darken($blue, 30%);
+				//color: darken($blue, 30%);
 			}
 		}
 		
