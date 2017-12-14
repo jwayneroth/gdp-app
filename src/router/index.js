@@ -13,6 +13,6 @@ export default new VueRouter({
 		{path: '/', redirect: '/years'},
 		{path: '/years', component: Home},
 		{path: '/years/:year', component: Year},
-		{path: '/shows/:id', component: Show},
+		{path: '/shows/:show_id', component: Show},
 	]
 })
