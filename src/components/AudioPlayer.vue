@@ -2,7 +2,7 @@
 	<div id="audio-player">
 		<div class="row">
 			<div class="col-sm-9">
-				<h3>Audio Player</h3>
+				<h3 class="pane-title">Audio Player</h3>
 			</div>
 		</div>
 		<div class="d-flex flex-row align-items-start">

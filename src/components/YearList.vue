@@ -1,5 +1,6 @@
 <template>
 	<div id="year-list">
+		<h3 class="pane-title">Years</h3>
 		<table class="table">
 			<thead>
 				<tr><th>year</th><th>shows</th><th>recordings</th></tr>

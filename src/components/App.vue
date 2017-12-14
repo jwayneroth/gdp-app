@@ -2,11 +2,13 @@
 	<div id="app">
 		<header id="header" ref="header">
 			<div class="container-fluid">
-				<b-navbar class="d-flex flex-row align-items-start">
-					<router-link to="/"><img src="/static/img/logo.png" width="123" height="120" class=""></router-link>
-					<b-navbar-nav class="ml-auto d-flex flex-row align-items-start">
+				<b-navbar class="d-flex flex-row align-items-end justify-content-between">
+					<router-link to="/" id="site-logo" class="d-block"><img src="/static/img/logo.png" width="123" height="120" class=""></router-link>
+					<h1 id="site-title" class="mt-3">Grateful Dead Portal</h1>
+					<b-navbar-nav class="d-flex flex-row align-items-start">
+						<b-nav-item ref="about_toggle">About</b-nav-item>
 						<b-nav-item v-if="!user.logged_in" ref="login_toggle" @click="toggleForm('login')">Login</b-nav-item>
-						<b-nav-item v-if="!user.logged_in" ref="register_toggle" @click="toggleForm('register')">Register</b-nav-item>
+						<!--<b-nav-item v-if="!user.logged_in" ref="register_toggle" @click="toggleForm('register')">Register</b-nav-item>-->
 						<b-nav-item v-if="user.logged_in" to="/user">{{user.username}}</b-nav-item>
 						<b-nav-item v-if="user.logged_in" @click="logout">Logout</b-nav-item>
 					</b-navbar-nav>
@@ -126,11 +128,17 @@ html {
 	right: 0; bottom: 0;
 }
 
+#site-title {
+	@include text-shadow(0px 3px 10px rgba(150, 150, 150, .7));
+}
+
 #header {
 	left: 0; top: 0;
 	z-index: 100;
 	
 	.navbar {
+		//border-bottom: 1px solid rgba(0,0,0,.3);
+		
 		.navbar-nav {
 			.nav-item {
 				padding: .7em;

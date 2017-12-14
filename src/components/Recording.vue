@@ -44,7 +44,7 @@
 						<span class="closed">show</span>
 						tracks
 					</b-btn>
-					<b-btn class="add-all-btn" variant="primary" @click="onAddAllClick">add all tracks</b-btn>
+					<b-btn class="add-all-btn" variant="primary" @click="onAddAllClick"><span class="fa fa-plus"></span>&nbsp;all tracks</b-btn>
 				</div>
 			</div>
 			<b-collapse :id="'details-' + idx">
@@ -91,7 +91,7 @@
 								<input type="checkbox" :name="t.id" :checked="t.is_checked" v-on:click="toggleChecklist">
 							</td>
 							<td v-if="user.logged_in">
-								<input type="checkbox" :name="t.id" :checked="t.is_favorite" v-on:click="toggleFavorite">
+								<favorite-checkbox :name="t.id" :initChecked="t.is_favorite" :onClickCallback="toggleFavorite" />
 							</td>
 						</tr>
 					</draggable>
@@ -105,10 +105,13 @@
 import {mapState, mapGetters, mapActions} from 'vuex';
 import draggable from 'vuedraggable';
 
+import FavoriteCheckbox from './FavoriteCheckbox';
+
 export default {
 	props: ['recording', 'idx', 'startOpen'],
 	components: {
 		draggable,
+		FavoriteCheckbox,
 	},
 	data: function () {
 		return {}

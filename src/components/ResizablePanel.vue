@@ -14,7 +14,7 @@
 				</div>
 			</div>
 			<div v-if="resizable" ref="resizer" :class="resizer_class" :style="style.resizer" @mousedown.stop.prevent="handleDown">
-				<span class="handle pane-btn">resize</span>
+				<span class="handle pane-btn"/>
 			</div>
 			<div ref="right_pane" :class="[right_open ? 'open' : 'closed', 'pane', 'right-pane']" :style="style.right_pane">
 				<button v-if="right_open" class="pane-btn pane-close-btn" v-on:click="closeRight">
@@ -220,6 +220,10 @@ $resizer-width: 15;
 		position: relative;
 		left: 0; top: 0;
 		height: 100%;
+		background-image: url(/static/img/bg-logo.png);
+		background-repeat: no-repeat;
+		background-position: 50% 15%;
+		background-size: auto 75%;
 	}
 	
 	.pane {
@@ -266,19 +270,24 @@ $resizer-width: 15;
 		
 		.handle {
 			top: 50%;
-			@include transform-origin(0,0);
-			@include transform(rotate(270deg) translateY(-5px));
-			padding: .2em .7em;
+			width: 30px;
+			height: 43px;
+			background: white url(/static/img/bolt.svg) no-repeat 85% 50%;
+			background-size: 75%;
+			border: 1px solid rgba(0,0,0,.3);
+			border-left: none;
+			border-radius: 0 4px 4px 0;
+			@include translateX(-5px);
+			cursor: ew-resize;
 		}
 		
 		&.active,
 		&:hover {
-			//background-color: rgba(220,220,255,1);
-			@include box-shadow(inset 14px 0px 14px -14px rgba(0,0,0,.8));
+			@include box-shadow(inset 20px 0px 20px -20px rgba(0,0,0,.8));
 			
 			.handle {
-				@include transform(rotate(270deg) translateY(2px));
-				background-color: rgba(0,0,0,1);
+				background-color: rgba(0,0,0,.1);
+				@include translateX(0px);
 			}
 		}
 	}
