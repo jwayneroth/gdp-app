@@ -19,7 +19,7 @@ export default {
 			let txt = 'choose a year on the left to see its list of archived shows';
 			
 			if (params.show_id) {
-				txt = 'you can <b class="montserratbold">drag tracks</b> from the show to here or use the <b class="montserratbold">add buttons</b> to fill your playlist.';
+				txt = 'you can <b class="montserratbold">drag tracks</b> from the show here or use the <span class="fa fa-plus"></span>&nbsp;<b class="montserratbold">buttons</b> to fill your playlist.';
 			} else if (params.year) {
 				txt = 'choose a show to see its recordings and start listening!';
 			}

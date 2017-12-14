@@ -106,3 +106,30 @@
 		}
 	}
 }
+
+.favorite-checkbox {
+	//opacity: 0;
+	position: relative;
+	left: 0; top: 0;
+	
+	input[type="checkbox"] {
+		opacity: 0;
+	}
+	
+	> label {
+		&:before {
+			@include fa-icon();
+			content: $fa-var-star-o;
+			position: absolute;
+			left: 0; top: 0;
+			width: 100%;
+			height: 100%;
+		}
+	}
+	
+	&.checked > label {
+		&:before {
+			content: $fa-var-star;
+		}
+	}
+}
