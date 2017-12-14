@@ -3,7 +3,7 @@
 		<header id="header" ref="header">
 			<div class="container-fluid">
 				<b-navbar>
-					<b-navbar-brand to="/">gdp</b-navbar-brand>
+					<router-link to="/"><img src="/static/img/logo.png" width="123" height="120" class=""></router-link>
 					<b-navbar-nav class="">
 						<b-nav-item v-if="!user.logged_in" ref="login_toggle" @click="toggleForm('login')">Login</b-nav-item>
 						<b-nav-item v-if="!user.logged_in" ref="register_toggle" @click="toggleForm('register')">Register</b-nav-item>
