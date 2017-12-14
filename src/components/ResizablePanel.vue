@@ -4,7 +4,9 @@
 		<button v-if="!right_open" class="pane-btn pane-open-btn right" v-on:click="openRight">Open {{right_name}}</button>
 		<div class="pane-container">
 			<div ref="left_pane" :class="[left_open ? 'open' : 'closed', 'pane', 'left-pane']" :style="style.left_pane">
-				<button v-if="left_open" class="pane-btn pane-close-btn" v-on:click="closeLeft">X</button>
+				<button v-if="left_open" class="pane-btn pane-close-btn" v-on:click="closeLeft">
+					<span class="fa fa-close" />
+				</button>
 				<div class="inner">
 					<div class="container-fluid">
 						<slot name="left-pane"></slot>
@@ -15,7 +17,9 @@
 				<span class="handle pane-btn">resize</span>
 			</div>
 			<div ref="right_pane" :class="[right_open ? 'open' : 'closed', 'pane', 'right-pane']" :style="style.right_pane">
-				<button v-if="right_open" class="pane-btn pane-close-btn" v-on:click="closeRight">X</button>
+				<button v-if="right_open" class="pane-btn pane-close-btn" v-on:click="closeRight">
+					<span class="fa fa-close" />
+				</button>
 				<div class="inner">
 					<div class="container-fluid">
 						<slot name="right-pane"></slot>
@@ -183,11 +187,10 @@ $resizer-width: 15;
 		display: block;
 		position: absolute;
 		left: 0; top: 0;
-		background-color: #030303;
+		background-color: rgba(0,0,0,.7);
 		color: #ffffff;
 		z-index: 10;
 		border: none;
-		//@include box-shadow(3px 3px 2px rgba(30,30,30,.8));
 		
 		&.pane-open-btn {
 			top: 30px;
@@ -206,6 +209,10 @@ $resizer-width: 15;
 		&.pane-close-btn {
 			left: auto;
 			right: 18px;
+			
+			&:hover {
+				background-color: rgba(0,0,0,1);
+			}
 		}
 	}
 	
@@ -223,9 +230,8 @@ $resizer-width: 15;
 		top: 0;
 		background-color: #ffffff;
 		overflow: hidden;
-		//@include box-shadow(0px 0px 10px rgba(30,30,30,.4) inset);
 		
-		&.right-pane .inner { padding-left: ($resizer-width + 12) + px; }
+		&.right-pane > .inner { padding-left: ($resizer-width + 12) + px; }
 		
 		&.open {}
 		&.closed {}
@@ -242,7 +248,7 @@ $resizer-width: 15;
 			z-index: 1;
 		}
 		
-		.inner {
+		> .inner {
 			height: 100%;
 			padding: 1em;
 			overflow: auto;
@@ -256,6 +262,7 @@ $resizer-width: 15;
 		width: $resizer-width + px;
 		height: 100%;
 		z-index: 2;
+		@include box-shadow(inset 4px 0px 4px -4px rgba(0,0,0,.6));
 		
 		.handle {
 			top: 50%;
@@ -267,10 +274,11 @@ $resizer-width: 15;
 		&.active,
 		&:hover {
 			//background-color: rgba(220,220,255,1);
-			@include box-shadow(inset 14px 0px 14px -14px rgba(0,0,0,.6));
+			@include box-shadow(inset 14px 0px 14px -14px rgba(0,0,0,.8));
 			
 			.handle {
 				@include transform(rotate(270deg) translateY(2px));
+				background-color: rgba(0,0,0,1);
 			}
 		}
 	}

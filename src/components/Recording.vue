@@ -22,14 +22,24 @@
 					</b-form>
 				</div>
 			</div>
-			<div>rating: {{recording.average_rating}} / {{recording.reviews_count}} reviews</div>
-			<div class="row">
+			<p>rating: {{recording.average_rating}} / {{recording.reviews_count}} reviews</p>
+			<div class="row mb-3">
 				<div class="col-sm-6">
-					<b-btn v-b-toggle="'details-' + idx" variant="primary">details</b-btn>
-					<b-btn v-b-toggle="'description-' + idx" variant="primary">description<!--<span class="opened">hide</span><span class="closed">show</span>--></b-btn>
+					<b-btn v-b-toggle="'details-' + idx" variant="link">
+						<span class="opened fa fa-caret-up"></span>
+						<span class="closed fa fa-caret-down"></span>
+						details
+					</b-btn>
+					<b-btn v-b-toggle="'description-' + idx" variant="link">
+						<span class="opened fa fa-caret-up"></span>
+						<span class="closed fa fa-caret-down"></span>
+						description
+					</b-btn>
 				</div>
 				<div class="col-sm-6">
-					<b-btn v-b-toggle="'tracks-' + idx" variant="primary">
+					<b-btn v-b-toggle="'tracks-' + idx" variant="link">
+						<span class="opened fa fa-caret-up"></span>
+						<span class="closed fa fa-caret-down"></span>
 						<span class="opened">hide</span>
 						<span class="closed">show</span>
 						tracks
@@ -38,7 +48,7 @@
 				</div>
 			</div>
 			<b-collapse :id="'details-' + idx">
-				<b-card>
+				<b-card class="mb-3">
 					<dl class="row">
 						<dt class="col-sm-3">archive id</dt><dd class="col-sm-9">{{recording.archive_identifier}}</dd>
 						<dt class="col-sm-3">source</dt><dd class="col-sm-9">{{recording.source}}</dd>
@@ -49,7 +59,7 @@
 				</b-card>
 			</b-collapse>
 			<b-collapse :id="'description-' + idx">
-				<b-card>
+				<b-card class="mb-3">
 					<div v-html="recording.description"></div>
 				</b-card>
 			</b-collapse>
@@ -57,9 +67,9 @@
 				<table class="table draggable-table recording-tracks-table">
 					<thead>
 						<tr>
-							<th>track</th><th>length</th><th></th>
+							<th>title</th><th>length</th><th>add</th>
 							<th v-if="user.logged_in">checklist</th>
-							<th v-if="user.logged_in">favorites</th>
+							<th v-if="user.logged_in">favorite</th>
 						</tr>
 					</thead>
 					<draggable
@@ -72,7 +82,11 @@
 						<tr v-for="(t, idx) in recording.Tracks">
 							<td><span>{{t.title}}</span></td>
 							<td>{{secondsFormatted(t.length)}}</td>
-							<td><b-btn class="add-btn" variant="primary" v-on:click="onAddClick(t)"><span class="fa fa-plus"></span></b-btn></td>
+							<td>
+								<b-btn class="add-btn" variant="link" v-on:click="onAddClick(t)">
+									<span class="fa fa-plus"></span>
+								</b-btn>
+							</td>
 							<td v-if="user.logged_in">
 								<input type="checkbox" :name="t.id" :checked="t.is_checked" v-on:click="toggleChecklist">
 							</td>

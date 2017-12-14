@@ -4,20 +4,24 @@
 			<div class="col-sm-9">
 				<h3>Audio Player</h3>
 			</div>
-			<div class="col-sm-3">
+		</div>
+		<div class="d-flex flex-row align-items-start">
+			<div>
+				<audio-controls
+					:title="currentTitle"
+					:file="currentFile"
+					:autoPlay="true"
+					:onAudioEnded="onAudioEnded"
+					:onNextClick="(!isLast) ? onNextClick : null"
+					:onPrevClick="(!isFirst) ? onPrevClick : null"
+					:onEmptyPlay="onEmptyPlay"
+				/>
+			</div>
+			<div class="ml-auto">
 				<b-btn v-if="tracks.length" v-on:click="onEmptyClick">empty playlist</b-btn>
 			</div>
 		</div>
-		<audio-controls
-			:title="currentTitle"
-			:file="currentFile"
-			:autoPlay="true"
-			:onAudioEnded="onAudioEnded"
-			:onNextClick="(!isLast) ? onNextClick : null"
-			:onPrevClick="(!isFirst) ? onPrevClick : null"
-			:onEmptyPlay="onEmptyPlay"
-		/>
-		<p v-if="!tracks.length">add some tracks below to start listening!</p>
+		<playlist-helper v-if="!tracks.length" />
 		<table class="table draggable-table">
 			<draggable
 				id="playlist"
@@ -30,11 +34,15 @@
 				:move="onDragMove">
 				<tr v-for="(t, idx) in tracks" :class="[(currentTrack && t.id === currentTrack.id) ? 'active' : '', 'track']">
 					<td>
-						<audio preload="auto" :src="t.file" style="display: none;" @canplaythrough="onAudioLoaded(t)" />
+						<audio v-if="shouldPreload(idx)" preload="auto" :src="t.file" style="display:none;" @canplaythrough="onAudioLoaded(t)" />
 						<span class="title" v-on:click="onTrackClick(t)">{{t.title}}</span>
 					</td>
 					<td>{{secondsFormatted(t.length)}}</td>
-					<td><b-btn @click="onRemoveClick(t)"><span class="fa fa-minus"></span></b-btn></td>
+					<td>
+						<b-btn variant="link" class="text-secondary" @click="onRemoveClick(t)">
+							<span class="fa fa-minus"></span>
+						</b-btn>
+					</td>
 					<td v-if="user.logged_in">
 						<input type="checkbox" :name="t.id" :checked="t.is_checked" v-on:click="toggleChecklist">
 					</td>
@@ -53,12 +61,14 @@ import draggable from 'vuedraggable';
 
 import AudioTrack from './AudioTrack.vue';
 import AudioControls from './AudioControls.vue';
+import PlaylistHelper from './PlaylistHelper.vue';
 
 export default {
 	components: {
 		draggable,
 		AudioTrack,
-		AudioControls
+		AudioControls,
+		PlaylistHelper
 	},
 	data: function () {
 		return {
@@ -87,6 +97,7 @@ export default {
 			if (idx === 0) return true;
 			return false;
 		},
+		
 		tracks: {
 			get() {
 				let tracks = this.track_ids.map((t) => Object.assign({},this.tracks_by_id[t]));
@@ -116,7 +127,7 @@ export default {
 		},
 		
 		onEmptyClick: function() {
-			this.$store.commit('EMPTY_PLAYLIST')
+			this.$store.commit('EMPTY_PLAYLIST');
 		},
 		
 		onTrackClick: function (t) {
@@ -170,8 +181,21 @@ export default {
 			}
 		},
 		
+		shouldPreload: function(idx) {
+			if (process.env.NODE_ENV !== 'production') return false;
+			
+			if (!this.currentTrack) {
+				if (idx < 2) return true;
+				return false;
+			}
+			const curr_index = this.track_ids.indexOf(this.currentTrack.id);
+			if (curr_index === idx) return false;
+			if ((idx > curr_index) && (idx - curr_index < 3)) return true;
+			return false;
+		},
+		
 		onAudioLoaded: function(track) {
-			console.log('track ' + track.id + ' loaded');
+			console.log(track.title + ' : ' + track.id + ' loaded');
 		},
 		
 		// prevent drag from playlist back to show

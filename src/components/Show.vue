@@ -4,7 +4,8 @@
 		<div v-for="(val, idx) in recordings">
 			<recording v-if="idx === 0" :recording="val" :idx="idx" :start-open="true" />
 			<div v-else class="mb-2">
-				<h3 v-if="idx === 1" class="my-2">additional recordings</h3>
+				<h3 v-if="idx === 1" class="my-2">{{recordings.length - 1}} additional recordings</h3>
+				<hr/>
 				<recording :recording="val" :idx="idx" :start-open="false" />
 			</div>
 		</div>
@@ -48,7 +49,7 @@ export default {
 	},
 	created () {
 		console.log('Show::created');
-		this.$store.dispatch('getFullShow', {id: this.$route.params.id});
+		this.$store.dispatch('getFullShow', {id: this.$route.params.show_id});
 	},
 	mounted: function() {
 		console.log('Show::mounted $el: ', this.$el);

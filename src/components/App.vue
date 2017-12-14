@@ -2,9 +2,9 @@
 	<div id="app">
 		<header id="header" ref="header">
 			<div class="container-fluid">
-				<b-navbar>
-					<b-navbar-brand to="/">gdp</b-navbar-brand>
-					<b-navbar-nav class="">
+				<b-navbar class="d-flex flex-row align-items-start">
+					<b-navbar-brand to="/" class="">gdp</b-navbar-brand>
+					<b-navbar-nav class="ml-auto d-flex flex-row align-items-start">
 						<b-nav-item v-if="!user.logged_in" ref="login_toggle" @click="toggleForm('login')">Login</b-nav-item>
 						<b-nav-item v-if="!user.logged_in" ref="register_toggle" @click="toggleForm('register')">Register</b-nav-item>
 						<b-nav-item v-if="user.logged_in" to="/user">{{user.username}}</b-nav-item>
@@ -129,6 +129,18 @@ html {
 #header {
 	left: 0; top: 0;
 	z-index: 100;
+	
+	.navbar {
+		.navbar-nav {
+			.nav-item {
+				padding: .7em;
+				
+				.nav-link {
+					
+				}
+			}
+		}
+	}
 }
 
 #main {

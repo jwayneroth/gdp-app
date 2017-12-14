@@ -6,6 +6,10 @@
 @import "~bootstrap-vue/dist/bootstrap-vue.css";
 @import "../assets/scss/font-awesome/font-awesome.scss";
 
+.montserratbold {
+	font-family: $montserratbold;
+}
+
 #app {
 	
 	table {
