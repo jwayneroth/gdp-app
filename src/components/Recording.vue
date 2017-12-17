@@ -23,8 +23,8 @@
 				</div>
 			</div>
 			<p>rating: {{recording.average_rating}} / {{recording.reviews_count}} reviews</p>
-			<div class="row mb-3">
-				<div class="col-sm-6">
+			<div class="d-flex justify-content-between mb-3">
+				<div class="">
 					<b-btn v-b-toggle="'details-' + idx" variant="link">
 						<span class="opened fa fa-caret-up"></span>
 						<span class="closed fa fa-caret-down"></span>
@@ -36,7 +36,7 @@
 						description
 					</b-btn>
 				</div>
-				<div class="col-sm-6">
+				<div class="">
 					<b-btn v-b-toggle="'tracks-' + idx" variant="link">
 						<span class="opened fa fa-caret-up"></span>
 						<span class="closed fa fa-caret-down"></span>

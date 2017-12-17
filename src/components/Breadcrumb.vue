@@ -37,15 +37,6 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../assets/scss/app.scss";
 
-.bc {
-	display: inline;
-	cursor: pointer;
-	color: $red;
-	
-	&:hover, &:focus, &:active {
-		color: darken($red, 30%);
-	}
-}
+
 </style>

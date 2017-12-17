@@ -97,10 +97,21 @@ export default {
 		tbody {
 			tr {
 				cursor: pointer;
-			}
-			td {
-				//padding-top: .6em;
-				//padding-bottom: .4em;
+				
+				th,
+				td {
+					text-align: center;
+					
+					&:nth-child(1),
+					&:nth-child(2) {
+						text-align: left;
+					}
+					
+					.fa-check {
+						font-size: .8em;
+						color: #555;
+					}
+				}
 			}
 		}
 	}

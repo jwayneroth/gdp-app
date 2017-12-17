@@ -6,14 +6,14 @@
 					<router-link to="/" id="site-logo" class="d-block"><img src="/static/img/logo.png" width="123" height="120" class=""></router-link>
 					<h1 id="site-title" class="mt-3">Grateful Dead Portal</h1>
 					<b-navbar-nav class="d-flex flex-row align-items-start">
-						<b-nav-item ref="about_toggle">About</b-nav-item>
-						<b-nav-item v-if="!user.logged_in" ref="login_toggle" @click="toggleForm('login')">Login</b-nav-item>
-						<!--<b-nav-item v-if="!user.logged_in" ref="register_toggle" @click="toggleForm('register')">Register</b-nav-item>-->
+						<b-nav-item ref="about_toggle" @click="showPane('about')">About</b-nav-item>
+						<b-nav-item v-if="!user.logged_in" ref="login_toggle" @click="showPane('login')">Login</b-nav-item>
+						<!--<b-nav-item v-if="!user.logged_in" ref="register_toggle" @click="showPane('register')">Register</b-nav-item>-->
 						<b-nav-item v-if="user.logged_in" to="/user">{{user.username}}</b-nav-item>
 						<b-nav-item v-if="user.logged_in" @click="logout">Logout</b-nav-item>
 					</b-navbar-nav>
 				</b-navbar>
-				<user-forms :activeForm="active_form" :onResize="onHeaderResize" ref="user_forms"></user-forms>
+				<nav-panel :activePane="active_pane" :onResize="onHeaderResize" ref="user_forms" :changePane="showPane"/>
 			</div>
 		</header>
 		<main id="main" ref="main" :style="styles.main">
@@ -29,7 +29,7 @@
 import {mapState, mapGetters, mapActions} from 'vuex';
 
 import ResizablePanel from './ResizablePanel.vue';
-import UserForms from './UserForms.vue';
+import NavPanel from './NavPanel.vue';
 import AudioPlayer from './AudioPlayer.vue';
 import {setAuthHeader} from '../api';
 
@@ -39,16 +39,15 @@ export default {
 	name: 'app',
 	components: {
 		ResizablePanel,
-		UserForms,
+		NavPanel,
 		AudioPlayer,
 	},
 	data: function () {
 		return {
-			active_form: null,
+			active_pane: null,
 			header_height_normal: 55,
 			header_height_auth: 275,
 			main_height: 0,
-			activeForm: null,
 		}
 	},
 	computed: {
@@ -64,11 +63,11 @@ export default {
 		}
 	},
 	methods: {
-		toggleForm: function(form) {
-			if (this.active_form === form) {
-				this.active_form = null;
+		showPane: function(panel) {
+			if (this.active_pane === panel) {
+				this.active_pane = null;
 			} else {
-				this.active_form = form;
+				this.active_pane = panel;
 			}
 			setTimeout(this.resize, 150);
 		},
@@ -89,8 +88,8 @@ export default {
 		'user.logged_in': function(logged_in) {
 			console.log('App::logged_in change', logged_in);
 			if (logged_in === true) {
-				if (this.active_form !== null) {
-					this.active_form = null;
+				if (this.active_pane === 'login' || this.active_pane === 'register') {
+					this.active_pane = null;
 					setTimeout(this.resize, 250);
 				}
 			}
@@ -115,47 +114,4 @@ export default {
 
 <style lang="scss">
 @import "../assets/scss/app.scss";
-
-html {
-	font-size: 75%;
-}
-
-#app {
-	position: fixed;
-	width: 100%;
-	height: 100%;
-	left: 0; top: 0;
-	right: 0; bottom: 0;
-}
-
-#site-title {
-	@include text-shadow(0px 3px 10px rgba(150, 150, 150, .7));
-}
-
-#header {
-	left: 0; top: 0;
-	z-index: 100;
-	
-	.navbar {
-		//border-bottom: 1px solid rgba(0,0,0,.3);
-		
-		.navbar-nav {
-			.nav-item {
-				padding: .7em;
-				
-				.nav-link {
-					
-				}
-			}
-		}
-	}
-}
-
-#main {
-	position: relative;
-	top: 0; left: 0;
-	width: 100%;
-	height: 100%;
-	background-color: #8f8f8f;
-}
 </style>

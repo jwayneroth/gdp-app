@@ -223,44 +223,5 @@ export default {
 </script>
 
 <style lang="scss">
-@import "compass/css3";
-@import "../assets/scss/variables.scss";
 
-#audio-player {}
-
-#playlist {
-	min-height: 250px;
-	margin: 0;
-	padding: 0;
-	padding-bottom: 3em;
-	position: relative;
-	left: 0; top: 0;
-	
-	&:after {
-		content: '';
-		display: table-row;
-		height: 50px;
-	}
-	
-	&.empty {
-		&:after {
-			display: table-row;
-			height: 200px;
-		}
-	}
-	
-	.track {
-		
-		.title {
-			display: block;
-			cursor: pointer;
-		}
-		
-		&.active {
-			.title {
-				color: $blue;
-			}
-		}
-	}
-}
 </style>
