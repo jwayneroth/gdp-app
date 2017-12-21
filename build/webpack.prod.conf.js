@@ -26,8 +26,10 @@ const webpackConfig = merge(baseWebpackConfig, {
   devtool: config.build.productionSourceMap ? '#source-map' : false,
   output: {
     path: config.build.assetsRoot,
-    filename: utils.assetsPath('js/[name].[chunkhash].js'),
-    chunkFilename: utils.assetsPath('js/[id].[chunkhash].js')
+    //filename: utils.assetsPath('js/[name].[chunkhash].js'),
+    //chunkFilename: utils.assetsPath('js/[id].[chunkhash].js')
+    filename: utils.assetsPath('js/[name].js'),
+    chunkFilename: utils.assetsPath('js/[id].js')
   },
   plugins: [
     // http://vuejs.github.io/vue-loader/en/workflow/production.html
@@ -42,7 +44,8 @@ const webpackConfig = merge(baseWebpackConfig, {
     }),
     // extract css into its own file
     new ExtractTextPlugin({
-      filename: utils.assetsPath('css/[name].[contenthash].css')
+      //filename: utils.assetsPath('css/[name].[contenthash].css')
+      filename: utils.assetsPath('css/[name].css')
     }),
     // Compress extracted CSS. We are using this plugin so that possible
     // duplicated CSS from different components can be deduped.
@@ -58,17 +61,17 @@ const webpackConfig = merge(baseWebpackConfig, {
       filename: config.build.index,
       template: 'index.html',
       inject: true,
-      minify: {
+      /*minify: {
         removeComments: true,
         collapseWhitespace: true,
         removeAttributeQuotes: true
         // more options:
         // https://github.com/kangax/html-minifier#options-quick-reference
-      },
+      },*/
       // necessary to consistently work with multiple chunks via CommonsChunkPlugin
       chunksSortMode: 'dependency',
-      serviceWorkerLoader: `<script>${loadMinified(path.join(__dirname,
-        './service-worker-prod.js'))}</script>`
+      /*serviceWorkerLoader: `<script>${loadMinified(path.join(__dirname,
+        './service-worker-prod.js'))}</script>`*/
     }),
     // split vendor js into its own file
     new webpack.optimize.CommonsChunkPlugin({
@@ -99,13 +102,13 @@ const webpackConfig = merge(baseWebpackConfig, {
       }
     ]),
     // service worker caching
-    new SWPrecacheWebpackPlugin({
-      cacheId: 'gdp',
-      filename: 'service-worker.js',
-      staticFileGlobs: ['dist/**/*.{js,html,css}'],
-      minify: true,
-      stripPrefix: 'dist/'
-    })
+    //new SWPrecacheWebpackPlugin({
+     //cacheId: 'gdp',
+      //filename: 'service-worker.js',
+      //staticFileGlobs: ['dist/**/*.{js,html,css}'],
+      //minify: true,
+      //stripPrefix: 'dist/'
+    //})
   ]
 })
 
