@@ -4,7 +4,7 @@ export const User = {
 	template: `
 		<div id="user-container">
 			<div v-if="user.logged_in">
-				<h3>{{user.username}}</h3>
+				<h3 class="text-center">{{user.username}}</h3>
 				<router-view></router-view>
 			</div>
 		</div>

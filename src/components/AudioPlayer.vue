@@ -208,15 +208,19 @@ export default {
 		},
 		
 		toggleFavorite(evt) {
-			//console.log('toggleFavorite', evt.target.getAttribute('data-id'));
-			//this.$store.dispatch('set_favorite_track', parseInt(evt.target.getAttribute('data-id')));
-			this.$store.dispatch('set_user_choice', 'favorite', 'track', parseInt(evt.target.getAttribute('data-id')));
+			this.$store.dispatch('set_user_choice', {
+				list_type: 'favorite',
+				media_type: 'track',
+				media_id: parseInt(evt.target.getAttribute('data-id'))
+			});
 		},
 		
 		toggleChecklist(evt) {
-			console.log('toggleChecklist', evt.target.getAttribute('data-id'));
-			//this.$store.dispatch('set_checklist_track', parseInt(evt.target.getAttribute('data-id')));
-			this.$store.dispatch('set_user_choice', 'checklist', 'track', parseInt(evt.target.getAttribute('data-id')));
+			this.$store.dispatch('set_user_choice', {
+				list_type: 'checklist',
+				media_type: 'track',
+				media_id: parseInt(evt.target.getAttribute('data-id'))
+			});
 		},
 		
 		onEmptyPlay: function() {

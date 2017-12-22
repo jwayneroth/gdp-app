@@ -15,13 +15,18 @@ export default {
 			
 			const params = this.$route.params;
 			
-			//let txt = 'find a show and add its tracks below to start listenting!';
-			let txt = 'choose a year on the left to see its list of archived shows';
+			let txt = 'find a show and add its tracks below to start listenting!';
 			
 			if (params.show_id) {
 				txt = 'you can <b class="montserratbold">drag tracks</b> from the show here or use the <span class="fa fa-plus"></span>&nbsp;<b class="montserratbold">buttons</b> to fill your playlist.';
 			} else if (params.year) {
 				txt = 'choose a show to see its recordings and start listening!';
+			} else {
+				if (this.$route.path.indexOf('years') !== -1) {
+					txt = 'choose a year on the left to see its list of archived shows';
+				} else if (this.$route.path.indexOf('user') !== -1) {
+					txt = '';
+				}
 			}
 			return txt;
 		},

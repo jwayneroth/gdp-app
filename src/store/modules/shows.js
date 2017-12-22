@@ -87,6 +87,7 @@ const mutations = {
 	},
 	
 	[types.TOGGLE_USER_CHOICE](state) {
+		console.log('shows store::TOGGLE_USER_CHOICE');
 		state.invalidateList = true;
 	},
 	

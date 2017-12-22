@@ -6,8 +6,12 @@
 			</button>
 			<div id="about-pane" ref="about" :class="[activePane === 'about' && 'active', 'pane']">
 				<div class="inner">
-					<h2>About</h2>
-					<p>Grateful Dead Portal is an index of Grateful Dead recordings available on the Internet Archive, organized primarily by show date.</p>
+					<div class="row">
+						<div class="col-sm-8 offset-sm-2">
+							<h2>About</h2>
+							<p>Grateful Dead Portal is an index of and online player for Grateful Dead recordings available on the Internet Archive.<br>Users are invited to build a playlist from among the navigable shows, with the option of creating an account in order to save shows, recordings and individual tracks as favorites or in a checklist.<br><i>The site is a work in progress</i>.</p>
+						</div>
+					</div>
 				</div>
 			</div>
 			<div id="login-pane" ref="login" :class="[activePane === 'login' && 'active', 'pane']">

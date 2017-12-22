@@ -1,34 +1,51 @@
 <template>
 	<div id="user-list-container">
 		<div v-if="user.logged_in">
-			<h4>{{listTitle}}</h4>
-			<table v-if="media_type === 'track'" class="table draggable-table recording-tracks-table">
-				<thead>
-					<tr>
-						<th>date</th><th>title</th><th>length</th><th>add</th>
-					</tr>
-				</thead>
-				<draggable
-					v-model="trackList"
-					:element="'tbody'"
-					:options="{group:'tracks'}"
-					@start="drag=true"
-					@end="drag=false"
-					:move="onDragMove">
-					<tr v-for="(t, idx) in list">
-						<td><span>{{t.date}}</span></td>
-						<td><span>{{t.title}}</span></td>
-						<td>{{secondsFormatted(t.length)}}</td>
-						<td>
-							<b-btn class="add-btn" variant="link" v-on:click="onAddClick(t)">
-								<span class="fa fa-plus"></span>
-							</b-btn>
-						</td>
-					</tr>
-				</draggable>
-			</table>
-			<b-table v-else responsive :fields="listFields" :items="list" @row-clicked="rowClick">
-			</b-table>
+			<router-link to="/user" class="d-block mb-2">back</router-link>
+			<div class="d-flex justify-content-between mb-3">
+				<h4>{{listTitle}}</h4>
+				<b-btn v-if="media_type === 'track'" class="add-all-btn" variant="primary" @click="onAddAllClick">
+					<span class="fa fa-plus"></span>
+					&nbsp;all tracks
+				</b-btn>
+			</div>
+			<div v-if="media_type === 'track'">
+				<table class="table draggable-table">
+					<thead>
+						<tr><th>date</th><th>title</th><th>length</th><th>add</th><th>checklist</th><th>favorite</th></tr>
+					</thead>
+					<draggable
+						v-model="trackList"
+						:element="'tbody'"
+						:options="{group:'tracks'}"
+						@start="drag=true"
+						@end="drag=false"
+						:move="onDragMove">
+						<tr v-for="(t, idx) in list">
+							<td><span>{{t.date}}</span></td>
+							<td><span>{{t.title}}</span></td>
+							<td>{{secondsFormatted(t.length)}}</td>
+							<td>
+								<b-btn class="add-btn" variant="link" v-on:click="onAddClick(t)">
+									<span class="fa fa-plus"></span>
+								</b-btn>
+							</td>
+							<td>
+								<checklist-checkbox :name="'check-track-' + t.id" :data-id="t.id" :initChecked="t.is_checked" :onClickCallback="toggleChecklist" />
+							</td>
+							<td>
+								<favorite-checkbox :name="'favorite-track-' + t.id" :data-id="t.id" :initChecked="t.is_favorite" :onClickCallback="toggleFavorite" />
+							</td>
+						</tr>
+					</draggable>
+				</table>
+			</div>
+			<div v-else>
+				<b-table responsive :fields="listFields" :items="list" @row-clicked="rowClick"></b-table>
+			</div>
+		</div>
+		<div v-else>
+			<p>you must be logged in to view this page. return <router-link to="/">home</router-link></p>
 		</div>
 	</div>
 </template>
@@ -37,16 +54,20 @@
 import { mapState } from 'vuex';
 import draggable from 'vuedraggable';
 
+import ChecklistCheckbox from './ChecklistCheckbox';
+import FavoriteCheckbox from './FavoriteCheckbox';
+
 export default {
 	components: {
-		draggable
+		draggable,
+		ChecklistCheckbox,
+		FavoriteCheckbox,
 	},
 	data: function () {
 		return {
 			media: null,
 			media_type: '',
 			list_type: '',
-			list_ids: [],
 		}
 	},
 	computed: {
@@ -58,7 +79,17 @@ export default {
 			recording_checks: state => state.user.recording_checks,
 			track_stars: state => state.user.track_stars,
 			track_checks: state => state.user.track_checks,
-			list: state => state.shows.list,
+			list: state => {
+				let list = state.shows.list.slice();
+				if (state.user.logged_in) {
+					list.forEach((val) => {
+						val.is_favorite = (state.user.track_stars.indexOf(val.id) !== -1);
+						val.is_checked = (state.user.track_checks.indexOf(val.id) !== -1);
+					});
+				}
+				console.log('get list', list.map(v=>v.is_favorite));
+				return list;
+			},
 		}),
 		
 		listTitle: function() {
@@ -67,9 +98,21 @@ export default {
 		},
 		
 		trackList: {
-			get() { return this.list; },
+			get() {
+				/*console.log('get trackList', this.list.map(v=>v.id), this.track_stars);
+				if (this.user.logged_in) {
+					this.list.forEach((val) => {
+						val.is_favorite = (this.track_stars.indexOf(val.id) !== -1);
+						val.is_checked = (this.track_checks.indexOf(val.id) !== -1);
+					});
+				}
+				console.log(this.list.map(v=>v.is_favorite));*/
+				return this.list;
+			},
 			// do nothing
-			set(val) {},
+			set(val) {
+				return this.list;
+			},
 		},
 		
 		listFields: function() {
@@ -92,6 +135,7 @@ export default {
 		},
 		
 		onAddAllClick: function(e) {
+			console.log('UserList::onAddAllClick', this.list);
 			this.$store.commit('ADD_TRACKS', {tracks: this.list})
 		},
 		
@@ -108,22 +152,40 @@ export default {
 			console.log('UserList::rowClick', item);
 			const path = '/shows/' + item.ShowId;
 			this.$router.push(path);
-		}
+		},
+		
+		toggleFavorite(evt) {
+			this.$store.dispatch('set_user_choice', {
+				list_type: 'favorite',
+				media_type: 'track',
+				media_id: parseInt(evt.target.getAttribute('data-id'))
+			});
+		},
+		
+		toggleChecklist(evt) {
+			this.$store.dispatch('set_user_choice', {
+				list_type: 'checklist',
+				media_type: 'track',
+				media_id: parseInt(evt.target.getAttribute('data-id'))
+			});
+		},
 	},
 	mounted: function() {
-		console.log('UserList mounted', this.$route.path.split('/'));
+		console.log('UserList mounted');
 		
 		const params = this.$route.path.split('/');
 		const list_type = params[2];
 		const media_type = params[3];
 		
 		const list_key = media_type + '_' + ((list_type === 'checklist') ? 'checks' : 'stars');
+		const list_ids = this[list_key];
 		
-		this.list_ids = this[list_key];
 		this.list_type = list_type;
 		this.media_type = media_type;
 		
-		this.$store.dispatch('getTeasers', {media_type, list_type, ids: this.list_ids});
-	}
+		console.log('list_key: ' + list_key + ' list_ids length: ' + list_ids.length);
+		
+		this.$store.dispatch('getTeasers', {media_type, list_type, ids: list_ids});
+	},
 };
 </script>

@@ -1,7 +1,7 @@
 <template>
-	<div :class="[(this.checked) ? 'checked' : '', 'favorite-checkbox']">
+	<div :class="[initChecked && 'checked', 'favorite-checkbox']">
 		<label>
-			<input type="checkbox" :name="name" :data-id="dataId" :checked="checked" v-on:click="onClick">
+			<input type="checkbox" :name="name" :data-id="dataId" :checked="initChecked" v-on:click="onClickCallback">
 			{{label && 'favorite'}}
 		</label>
 	</div>
@@ -18,26 +18,5 @@ export default {
 		onClickCallback: Function,
 		label: String
 	},
-	computed: {
-	},
-	data () {
-		return {
-			checked: false,
-		}
-	},
-	methods: {
-		onClick: function(evt) {
-			this.onClickCallback(evt);
-			this.checked = !this.checked;
-			this.$el.className = (this.checked) ? 'favorite-checkbox, checked' : 'favorite-checkbox';
-		}
-	},
-	created: function() {
-		if (this.$props.initChecked) this.checked = true;
-	}
 }
 </script>
-
-<style lang="scss">
-
-</style>

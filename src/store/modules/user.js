@@ -116,6 +116,7 @@ const mutations = {
 	},
 	
 	[types.TOGGLE_USER_CHOICE](state, {list_key, media_id}) {
+		console.log('user store::TOGGLE_USER_CHOICE');
 		const idx = state[list_key].indexOf(media_id);
 		if (idx !== -1) {
 			state[list_key] = sliceIndex(state[list_key], idx);
