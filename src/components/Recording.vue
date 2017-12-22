@@ -1,28 +1,16 @@
 <template>
 	<div class="recording-root">
 		<div v-if="recording" :id="'recording-' + recording.id">
-			<div class="row">
-				<div class="col-sm-9">
-					<h3>{{recording.title}}</h3>
+			<h3>{{recording.title}}</h3>
+			<div class="d-flex align-items-end mt-1 mb-2">
+				<div>rating: {{recording.average_rating}} / {{recording.reviews_count}} reviews</div>
+				<div v-if="user.logged_in" class="mx-4" v-b-tooltip.hover title="add recording to checklist">
+					<checklist-checkbox :name="'check-recording-' + recording.id" :initChecked="recording.is_checked" :onClickCallback="toggleRecordingChecklist" />
 				</div>
-				<div class="col-sm-3">
-					<b-form v-if="user.logged_in">
-						<div class="form-check">
-							<label class="form-check-label">
-								<input type="checkbox" class="form-check-input" :name="'check-' + recording.id" :checked="recording.is_checked" v-on:click="toggleShowChecklist">
-								checklist
-							</label>
-						</div>
-						<div class="form-check">
-							<label class="form-check-label">
-								<input type="checkbox" class="form-check-input" :name="'favorite-' + recording.id" :checked="recording.is_favorite" v-on:click="toggleShowFavorite">
-								favorite
-							</label>
-						</div>
-					</b-form>
+				<div v-if="user.logged_in" v-b-tooltip.hover title="favorite this recording">
+					<favorite-checkbox :name="'favorite-recording-' + recording.id" :initChecked="recording.is_favorite" :onClickCallback="toggleRecordingFavorite" />
 				</div>
 			</div>
-			<p>rating: {{recording.average_rating}} / {{recording.reviews_count}} reviews</p>
 			<div class="d-flex justify-content-between mb-3">
 				<div class="">
 					<b-btn v-b-toggle="'details-' + idx" variant="link">
@@ -50,7 +38,15 @@
 			<b-collapse :id="'details-' + idx">
 				<b-card class="mb-3">
 					<dl class="row">
-						<dt class="col-sm-3">archive id</dt><dd class="col-sm-9">{{recording.archive_identifier}}</dd>
+						<dt class="col-sm-3">archive id</dt>
+						<dd class="col-sm-9">
+							<a
+								:href="'https://archive.org/details/' + recording.archive_identifier" target="_blank"
+								v-b-tooltip.hover title="view recording on archive.org"
+							>
+								{{recording.archive_identifier}}
+							</a>
+						</dd>
 						<dt class="col-sm-3">source</dt><dd class="col-sm-9">{{recording.source}}</dd>
 						<dt class="col-sm-3">lineage</dt><dd class="col-sm-9">{{recording.lineage}}</dd>
 						<dt class="col-sm-3">transferer</dt><dd class="col-sm-9">{{recording.transferer}}</dd>
@@ -88,10 +84,10 @@
 								</b-btn>
 							</td>
 							<td v-if="user.logged_in">
-								<input type="checkbox" :name="t.id" :checked="t.is_checked" v-on:click="toggleChecklist">
+								<checklist-checkbox :name="'check-track-' + t.id" :data-id="t.id" :initChecked="t.is_checked" :onClickCallback="toggleChecklist" />
 							</td>
 							<td v-if="user.logged_in">
-								<favorite-checkbox :name="t.id" :initChecked="t.is_favorite" :onClickCallback="toggleFavorite" />
+								<favorite-checkbox :name="'favorite-track-' + t.id" :data-id="t.id" :initChecked="t.is_favorite" :onClickCallback="toggleFavorite" />
 							</td>
 						</tr>
 					</draggable>
@@ -105,12 +101,14 @@
 import {mapState, mapGetters, mapActions} from 'vuex';
 import draggable from 'vuedraggable';
 
+import ChecklistCheckbox from './ChecklistCheckbox';
 import FavoriteCheckbox from './FavoriteCheckbox';
 
 export default {
 	props: ['recording', 'idx', 'startOpen'],
 	components: {
 		draggable,
+		ChecklistCheckbox,
 		FavoriteCheckbox,
 	},
 	data: function () {
@@ -166,21 +164,35 @@ export default {
 		},
 		
 		toggleFavorite(evt) {
-			console.log('toggleFavorite', evt.target.name);
-			this.$store.dispatch('set_favorite_track', parseInt(evt.target.name));
+			this.$store.dispatch('set_user_choice', {
+				list_type: 'favorite',
+				media_type: 'track',
+				media_id: parseInt(evt.target.getAttribute('data-id'))
+			});
 		},
 		
 		toggleChecklist(evt) {
-			console.log('toggleChecklist', evt.target.name);
-			this.$store.dispatch('set_checklist_track', parseInt(evt.target.name));
+			this.$store.dispatch('set_user_choice', {
+				list_type: 'checklist',
+				media_type: 'track',
+				media_id: parseInt(evt.target.getAttribute('data-id'))
+			});
 		},
 		
-		toggleShowFavorite(evt) {
-			this.$store.dispatch('set_favorite_show', parseInt(this.show.id));
+		toggleRecordingFavorite(evt) {
+			this.$store.dispatch('set_user_choice', {
+				list_type: 'favorite',
+				media_type: 'recording',
+				media_id: parseInt(this.recording.id)
+			});
 		},
 		
-		toggleShowChecklist(evt) {
-			this.$store.dispatch('set_checklist_show', parseInt(this.show.id));
+		toggleRecordingChecklist(evt) {
+			this.$store.dispatch('set_user_choice', {
+				list_type: 'checklist',
+				media_type: 'recording',
+				media_id: parseInt(this.recording.id)
+			});
 		},
 	},
 	created () {

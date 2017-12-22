@@ -2,15 +2,15 @@
 	<div class="year" ref="year">
 		<h3 class="pane-title">{{$route.params.year}}</h3>
 		<router-link class="d-block mb-2" to="/">back to years</router-link>
-		<b-table ref="shows_table" responsive stacked="md" :fields="fields" :items="shows" @row-clicked="rowClick">
+		<b-table ref="shows_table" responsive :fields="fields" :items="shows" @row-clicked="rowClick">
 			<!--<template slot="title" slot-scope="data">
 				<router-link :to="'/shows/' + data.item.id">{{data.item.title}}</router-link>
 			</template>-->
 			<template slot="checklist" slot-scope="data">
-				<input type="checkbox" :name="data.item.id" :checked="data.item.is_checked" v-on:click="toggleShowChecklist">
+				<checklist-checkbox :name="'check-show-' + data.item.id" :data-id="data.item.id" :initChecked="data.item.is_checked" :onClickCallback="toggleShowChecklist" />
 			</template>
 			<template slot="favorite" slot-scope="data">
-				<input type="checkbox" :name="data.item.id" :checked="data.item.is_favorite" v-on:click="toggleShowFavorite">
+				<favorite-checkbox :name="'favorite-show-' + data.item.id" :data-id="data.item.id" :initChecked="data.item.is_favorite" :onClickCallback="toggleShowFavorite" />
 			</template>
 		</b-table>
 	</div>
@@ -19,7 +19,11 @@
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex';
 
+import ChecklistCheckbox from './ChecklistCheckbox';
+import FavoriteCheckbox from './FavoriteCheckbox';
+
 export default {
+	components: {ChecklistCheckbox, FavoriteCheckbox},
 	data: function() {
 		return {
 		}
@@ -40,7 +44,7 @@ export default {
 				{ key: 'average_rating', label: '~rating', formatter: v => parseInt(v, 10), sortable: true},
 				{ key: 'has_soundboard', label: 'sbd', formatter: v => (v) ? '<span class="fa fa-check"></span>' : ''},
 			];
-			if (this.user.logged_in) arr.push({ key: 'checklist', label: 'checklist'}, { key: 'favorite', label: 'favorite'},);
+			if (this.user.logged_in) arr.push({ key: 'checklist', label: 'list'}, { key: 'favorite', label: 'star'},);
 			return arr;
 		},
 		/**
@@ -72,14 +76,23 @@ export default {
 		},
 		
 		toggleShowFavorite: function(evt) {
-			this.$store.dispatch('set_favorite_show', parseInt(evt.target.name));
+			this.$store.dispatch('set_user_choice', {
+				list_type: 'favorite',
+				media_type: 'show',
+				media_id: parseInt(evt.target.getAttribute('data-id'))
+			});
 		},
 		
 		toggleShowChecklist: function(evt) {
-			this.$store.dispatch('set_checklist_show', parseInt(evt.target.name));
+			this.$store.dispatch('set_user_choice', {
+				list_type: 'checklist',
+				media_type: 'show',
+				media_id: parseInt(evt.target.getAttribute('data-id'))
+			});
 		},
 		
 		rowClick: function(item, idx, evt) {
+			if (evt.target.tagName === "INPUT") return false;
 			this.$router.push('/shows/' + item.id);
 		},
 	},

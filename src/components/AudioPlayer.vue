@@ -44,10 +44,10 @@
 						</b-btn>
 					</td>
 					<td v-if="user.logged_in">
-						<input type="checkbox" :name="t.id" :checked="t.is_checked" v-on:click="toggleChecklist">
+						<checklist-checkbox :name="'check-track-' + t.id" :data-id="t.id" :initChecked="t.is_checked" :onClickCallback="toggleChecklist" />
 					</td>
 					<td v-if="user.logged_in">
-						<input type="checkbox" :name="t.id" :checked="t.is_favorite" v-on:click="toggleFavorite">
+						<favorite-checkbox :name="'favorite-track-' + t.id" :data-id="t.id" :initChecked="t.is_favorite" :onClickCallback="toggleFavorite" />
 					</td>
 				</tr>
 			</draggable>
@@ -62,13 +62,17 @@ import draggable from 'vuedraggable';
 import AudioTrack from './AudioTrack.vue';
 import AudioControls from './AudioControls.vue';
 import PlaylistHelper from './PlaylistHelper.vue';
+import ChecklistCheckbox from './ChecklistCheckbox';
+import FavoriteCheckbox from './FavoriteCheckbox';
 
 export default {
 	components: {
 		draggable,
 		AudioTrack,
 		AudioControls,
-		PlaylistHelper
+		PlaylistHelper,
+		ChecklistCheckbox,
+		FavoriteCheckbox
 	},
 	data: function () {
 		return {
@@ -204,13 +208,15 @@ export default {
 		},
 		
 		toggleFavorite(evt) {
-			console.log('toggleFavorite', evt.target.name);
-			this.$store.dispatch('set_favorite_track', parseInt(evt.target.name));
+			//console.log('toggleFavorite', evt.target.getAttribute('data-id'));
+			//this.$store.dispatch('set_favorite_track', parseInt(evt.target.getAttribute('data-id')));
+			this.$store.dispatch('set_user_choice', 'favorite', 'track', parseInt(evt.target.getAttribute('data-id')));
 		},
 		
 		toggleChecklist(evt) {
-			console.log('toggleChecklist', evt.target.name);
-			this.$store.dispatch('set_checklist_track', parseInt(evt.target.name));
+			console.log('toggleChecklist', evt.target.getAttribute('data-id'));
+			//this.$store.dispatch('set_checklist_track', parseInt(evt.target.getAttribute('data-id')));
+			this.$store.dispatch('set_user_choice', 'checklist', 'track', parseInt(evt.target.getAttribute('data-id')));
 		},
 		
 		onEmptyPlay: function() {

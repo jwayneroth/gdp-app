@@ -44,3 +44,15 @@ export function getFullShow(id, cb) {
 		console.error('api::getFullShow error', err);
 	})
 };
+
+export function getTeasers(media_type, ids, cb) {
+	
+	axios.post(API_URL + '/api/teasers/' + media_type, {ids})
+	.then((response) => {
+		console.log('api::getTeasers success', response.data);
+		cb(response.data);
+	})
+	.catch((err) => {
+		console.error('api::getTeasers error', err);
+	})
+}

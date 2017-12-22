@@ -6,6 +6,9 @@
 @import "~bootstrap-vue/dist/bootstrap-vue.css";
 @import "../assets/scss/font-awesome/font-awesome.scss";
 
+.montserratregular {
+	font-family: $montserratregular;
+}
 .montserratbold {
 	font-family: $montserratbold;
 }
@@ -306,9 +309,11 @@ $resizer-width: 15;
 }
 
 /////////////////////
+// Checklist
 // Favorite
 ///////////////////
 
+.checklist-checkbox ,
 .favorite-checkbox {
 	//opacity: 0;
 	position: relative;
@@ -319,20 +324,34 @@ $resizer-width: 15;
 	}
 	
 	> label {
+		margin: 0;
+		
 		&:before {
 			@include fa-icon();
-			content: $fa-var-star-o;
 			position: absolute;
-			left: 0; top: 0;
+			left: 0; top: 50%;
+			@include translateY(-50%);
 			width: 100%;
-			height: 100%;
+			height: 1em;
 		}
 	}
-	
-	&.checked > label {
-		&:before {
-			content: $fa-var-star;
-		}
+}
+
+.checklist-checkbox {
+	> label::before {
+		content: $fa-var-file-text-o;
+	}
+	&.checked > label::before {
+		content: $fa-var-file-text;
+	}
+}
+
+.favorite-checkbox {
+	> label::before {
+		content: $fa-var-star-o;
+	}
+	&.checked > label::before {
+		content: $fa-var-star;
 	}
 }
 

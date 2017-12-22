@@ -1,5 +1,8 @@
 <template>
 	<div class="home">
+		<div v-if="$route.name === '404'">
+			404
+		</div>
 		<year-list></year-list>
 	</div>
 </template>

@@ -45,9 +45,9 @@ export default {
 			resizing: false,
 			left_open: true,
 			right_open: true,
-			lp_width: .5,
-			rp_width: .5,
-			rszr_left: .5,
+			lp_width: .6,
+			rp_width: .4,
+			rszr_left: .6,
 		}
 	},
 	computed: {

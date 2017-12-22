@@ -4,13 +4,13 @@
 			<div class="container-fluid">
 				<b-navbar class="d-flex flex-row align-items-end justify-content-between">
 					<router-link to="/" id="site-logo" class="d-block"><img src="/static/img/logo.png" width="123" height="120" class=""></router-link>
-					<h1 id="site-title" class="mt-3">Grateful Dead Portal</h1>
+					<h1 id="site-title" class="mt-3 montserratregular">Grateful Dead Portal</h1>
 					<b-navbar-nav class="d-flex flex-row align-items-start">
-						<b-nav-item ref="about_toggle" @click="showPane('about')">About</b-nav-item>
-						<b-nav-item v-if="!user.logged_in" ref="login_toggle" @click="showPane('login')">Login</b-nav-item>
+						<b-nav-item ref="about_toggle" @click="showPane('about')">about</b-nav-item>
+						<b-nav-item v-if="!user.logged_in" ref="login_toggle" @click="showPane('login')">log in</b-nav-item>
 						<!--<b-nav-item v-if="!user.logged_in" ref="register_toggle" @click="showPane('register')">Register</b-nav-item>-->
 						<b-nav-item v-if="user.logged_in" to="/user">{{user.username}}</b-nav-item>
-						<b-nav-item v-if="user.logged_in" @click="logout">Logout</b-nav-item>
+						<b-nav-item v-if="user.logged_in" @click="logout">log out</b-nav-item>
 					</b-navbar-nav>
 				</b-navbar>
 				<nav-panel :activePane="active_pane" :onResize="onHeaderResize" ref="user_forms" :changePane="showPane"/>

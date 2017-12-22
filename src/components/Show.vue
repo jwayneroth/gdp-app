@@ -1,6 +1,14 @@
 <template>
 	<div class="recordings">
-		<breadcrumb/>
+		<div class="d-flex align-items-end" v-if="user.logged_in">
+			<div class="mr-auto"><breadcrumb/></div>
+			<div v-if="show" class="mx-4" v-b-tooltip.hover title="add show to checklist">
+				<checklist-checkbox :name="'check-show-' + show.id" :initChecked="show.is_favorite" :onClickCallback="toggleChecklist" />
+			</div>
+			<div v-if="show" class="mr-5" v-b-tooltip.hover title="favorite show">
+				<favorite-checkbox :name="'favorite-show-' + show.id" :initChecked="show.is_favorite" :onClickCallback="toggleFavorite" />
+			</div>
+		</div>
 		<div v-for="(val, idx) in recordings">
 			<recording v-if="idx === 0" :recording="val" :idx="idx" :start-open="true" />
 			<div v-else class="mb-2">
@@ -15,11 +23,15 @@
 <script>
 import {mapState, mapGetters, mapActions} from 'vuex';
 
+import ChecklistCheckbox from './ChecklistCheckbox';
+import FavoriteCheckbox from './FavoriteCheckbox';
 import Recording from './Recording.vue';
 import Breadcrumb from './Breadcrumb.vue';
 
 export default {
 	components: {
+		ChecklistCheckbox,
+		FavoriteCheckbox,
 		Recording,
 		Breadcrumb
 	},
@@ -29,23 +41,54 @@ export default {
 	computed: {
 		...mapState({
 			user: 'user',
-			recordings: state => (state.shows.show) ? state.shows.show.Recordings : [],
+			activeShow: state => state.shows.show,
+			showRecordings: state => (state.shows.show) ? state.shows.show.Recordings : [],
+			recording_stars: state => state.user.recording_stars,
+			recording_checks: state => state.user.recording_checks,
 			show_stars: state => state.user.show_stars,
 			show_checks: state => state.user.show_checks,
 		}),
-		shows: function() {
-			let shows = this.recordings.slice();show
+		show: function() {
+			if (!this.activeShow) return null;
+			let s = {
+				id: this.activeShow.id,
+				toggleFavorite: this.toggleFavorite,
+				toggleChecklist: this.toggleChecklist
+			};
+			if (this.user.logged_in) {
+				s.is_favorite = (this.show_stars.indexOf(this.activeShow.id) !== -1);
+				s.is_checked = (this.show_checks.indexOf(this.activeShow.id) !== -1);
+			}
+			return s;
+		},
+		recordings: function() {
+			let recs = this.showRecordings.slice();
 			// add favorite and checked props from user onto shows
 			if (this.user.logged_in) {
-				shows.forEach((val) => {
-					val.is_favorite = (this.show_stars.indexOf(val.id) !== -1);
-					val.is_checked = (this.show_checks.indexOf(val.id) !== -1);
+				recs.forEach((val) => {
+					val.is_favorite = (this.recording_stars.indexOf(val.id) !== -1);
+					val.is_checked = (this.recording_checks.indexOf(val.id) !== -1);
 				});
 			}
-			return shows;
+			return recs;
 		},
 	},
 	methods: {
+		toggleFavorite(evt) {
+			this.$store.dispatch('set_user_choice', {
+				list_type: 'favorite',
+				media_type: 'show',
+				media_id: parseInt(this.show.id)
+			});
+		},
+		
+		toggleChecklist(evt) {
+			this.$store.dispatch('set_user_choice', {
+				list_type: 'checklist',
+				media_type: 'show',
+				media_id: parseInt(this.show.id)
+			});
+		},
 	},
 	created () {
 		console.log('Show::created');

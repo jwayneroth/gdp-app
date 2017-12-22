@@ -48,7 +48,7 @@ export function set_user_choice(media, list, media_id, val, cb) {
 		cb(response.data);
 	})
 	.catch((err) => {
-		console.log('api::set_user_choice error', err.response.data);
+		console.log('api::set_user_choice error', err); //.response.data);
 	});
 }
 
