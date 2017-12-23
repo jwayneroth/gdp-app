@@ -41,7 +41,7 @@
 				</table>
 			</div>
 			<div v-else>
-				<b-table responsive :fields="listFields" :items="list" @row-clicked="rowClick"></b-table>
+				<b-table :fields="listFields" :items="list" @row-clicked="rowClick"></b-table>
 			</div>
 		</div>
 		<div v-else>

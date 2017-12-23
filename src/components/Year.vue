@@ -2,7 +2,7 @@
 	<div class="year" ref="year">
 		<h3 class="pane-title">{{$route.params.year}}</h3>
 		<router-link class="d-block mb-2" to="/">back to years</router-link>
-		<b-table ref="shows_table" responsive :fields="fields" :items="shows" @row-clicked="rowClick">
+		<b-table ref="shows_table" :fields="fields" :items="shows" @row-clicked="rowClick">
 			<!--<template slot="title" slot-scope="data">
 				<router-link :to="'/shows/' + data.item.id">{{data.item.title}}</router-link>
 			</template>-->

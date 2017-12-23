@@ -1,7 +1,10 @@
 <template>
 	<div class="recordings">
 		<div class="d-flex align-items-end" v-if="user.logged_in">
-			<div class="mr-auto"><breadcrumb/></div>
+			<div class="mr-auto">
+				<router-link v-if="activeShow" :to="'/years/' + activeShow.year">back to {{activeShow.year}}</router-link>
+				<!--<breadcrumb/>-->
+			</div>
 			<div v-if="show" class="mx-4" v-b-tooltip.hover title="add show to checklist">
 				<checklist-checkbox :name="'check-show-' + show.id" :initChecked="show.is_favorite" :onClickCallback="toggleChecklist" />
 			</div>

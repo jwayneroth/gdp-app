@@ -33,6 +33,9 @@ export default {
 			this.$router.back();
 		},
 	},
+	/*mounted: function() {
+		console.log('Breadcrumb::mounted',this.$route);
+	}*/
 }
 </script>
 
