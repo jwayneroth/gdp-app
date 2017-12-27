@@ -2,16 +2,23 @@
 	<div id="app">
 		<header id="header" ref="header">
 			<div class="container-fluid">
-				<b-navbar class="d-flex flex-row align-items-end justify-content-between">
-					<router-link to="/" id="site-logo" class="d-block"><img src="/static/img/logo.png" width="123" height="120" class=""></router-link>
-					<h1 id="site-title" class="mt-3 montserratregular">Grateful Dead Portal</h1>
-					<b-navbar-nav class="d-flex flex-row align-items-start">
-						<b-nav-item ref="about_toggle" @click="showPane('about')">about</b-nav-item>
-						<b-nav-item v-if="!user.logged_in" ref="login_toggle" @click="showPane('login')">log in</b-nav-item>
-						<!--<b-nav-item v-if="!user.logged_in" ref="register_toggle" @click="showPane('register')">Register</b-nav-item>-->
-						<b-nav-item v-if="user.logged_in" to="/user">{{user.username}}</b-nav-item>
-						<b-nav-item v-if="user.logged_in" @click="logout">log out</b-nav-item>
-					</b-navbar-nav>
+				<b-navbar toggleable="md"class="d-flex flex-row align-items-end justify-content-between">
+					<router-link to="/" id="site-logo" class="d-block">
+						<img src="/static/img/logo.png" width="123" height="120" class="img-fluid">
+					</router-link>
+					<h1 id="site-title" class="mt-3 montserratregular">
+						Grateful Dead Portal
+					</h1>
+					<b-navbar-toggle target="nav_collapse"></b-navbar-toggle>
+					<b-collapse is-nav id="nav_collapse" @shown="onHeaderResize" @hidden="onHeaderResize">
+						<b-navbar-nav id="site-nav"><!-- class="d-flex flex-row align-items-start">-->
+							<b-nav-item ref="about_toggle" @click="showPane('about')">about</b-nav-item>
+							<b-nav-item v-if="!user.logged_in" ref="login_toggle" @click="showPane('login')">log in</b-nav-item>
+							<!--<b-nav-item v-if="!user.logged_in" ref="register_toggle" @click="showPane('register')">Register</b-nav-item>-->
+							<b-nav-item v-if="user.logged_in" to="/user">{{user.username}}</b-nav-item>
+							<b-nav-item v-if="user.logged_in" @click="logout">log out</b-nav-item>
+						</b-navbar-nav>
+					</b-collapse>
 				</b-navbar>
 				<nav-panel :activePane="active_pane" :onResize="onHeaderResize" ref="user_forms" :changePane="showPane"/>
 			</div>

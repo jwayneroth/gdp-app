@@ -13,7 +13,7 @@
 					</div>
 				</div>
 			</div>
-			<div v-if="resizable" ref="resizer" :class="resizer_class" :style="style.resizer" @mousedown.stop.prevent="handleDown">
+			<div v-if="resizable" ref="resizer" :class="resizer_class" :style="style.resizer" v-on:touchstart.stop.prevent="handleDown" @mousedown.stop.prevent="handleDown">
 				<span class="handle pane-btn"/>
 			</div>
 			<div ref="right_pane" :class="[right_open ? 'open' : 'closed', 'pane', 'right-pane']" :style="style.right_pane">
@@ -102,7 +102,7 @@ export default {
 			}
 		},
 		handleDown: function(evt) {
-			//console.log('handleDown');
+			console.log('handleDown');
 			
 			if (evt.stopPropagation) evt.stopPropagation()
 			if (evt.preventDefault) evt.preventDefault()
@@ -114,6 +114,7 @@ export default {
 			}
 		},
 		handleMove: function(e) {
+			console.log('handleMove');
 			
 			if (!this.resizing) return;
 			
