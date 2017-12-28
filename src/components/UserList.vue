@@ -12,18 +12,22 @@
 			<div v-if="media_type === 'track'">
 				<table class="table draggable-table">
 					<thead>
-						<tr><th>date</th><th>title</th><th>length</th><th>add</th><th>checklist</th><th>favorite</th></tr>
+						<tr><th>date</th><th>title</th><th></th><th>length</th><th>add</th><th>checklist</th><th>favorite</th></tr>
 					</thead>
 					<draggable
 						v-model="trackList"
 						:element="'tbody'"
-						:options="{group:'tracks'}"
+						:options="{
+							group: 'tracks',
+							handle: '.handle'
+						}"
 						@start="drag=true"
 						@end="drag=false"
 						:move="onDragMove">
 						<tr v-for="(t, idx) in list">
 							<td><span>{{t.date}}</span></td>
 							<td><span>{{t.title}}</span></td>
+							<td class="handle"><span class="fa fa-arrows"></span></td>
 							<td>{{secondsFormatted(t.length)}}</td>
 							<td>
 								<b-btn class="add-btn" variant="link" v-on:click="onAddClick(t)">

@@ -5,10 +5,18 @@
 			<div class="d-flex align-items-end mt-1 mb-2">
 				<div>rating: {{recording.average_rating}} / {{recording.reviews_count}} reviews</div>
 				<div v-if="user.logged_in" class="mx-4" v-b-tooltip.hover title="add recording to checklist">
-					<checklist-checkbox :name="'check-recording-' + recording.id" :initChecked="recording.is_checked" :onClickCallback="toggleRecordingChecklist" />
+					<checklist-checkbox
+						:name="'check-recording-' + recording.id"
+						:initChecked="is_checked"
+						:onClickCallback="toggleRecordingChecklist"
+					/>
 				</div>
 				<div v-if="user.logged_in" v-b-tooltip.hover title="favorite this recording">
-					<favorite-checkbox :name="'favorite-recording-' + recording.id" :initChecked="recording.is_favorite" :onClickCallback="toggleRecordingFavorite" />
+					<favorite-checkbox
+						:name="'favorite-recording-' + recording.id"
+						:initChecked="is_favorite"
+						:onClickCallback="toggleRecordingFavorite"
+					/>
 				</div>
 			</div>
 			<div class="d-flex justify-content-between mb-3">
@@ -41,8 +49,10 @@
 						<dt class="col-sm-3">archive id</dt>
 						<dd class="col-sm-9">
 							<a
-								:href="'https://archive.org/details/' + recording.archive_identifier" target="_blank"
-								v-b-tooltip.hover title="view recording on archive.org"
+								:href="'https://archive.org/details/' + recording.archive_identifier"
+								target="_blank"
+								v-b-tooltip.hover
+								title="view recording on archive.org"
 							>
 								{{recording.archive_identifier}}
 							</a>
@@ -63,7 +73,7 @@
 				<table class="table draggable-table recording-tracks-table">
 					<thead>
 						<tr>
-							<th>title</th><th>length</th><th>add</th>
+							<th>title</th><th></th><th>length</th><th>add</th>
 							<th v-if="user.logged_in">checklist</th>
 							<th v-if="user.logged_in">favorite</th>
 						</tr>
@@ -71,12 +81,16 @@
 					<draggable
 						v-model="tracks"
 						:element="'tbody'"
-						:options="{group:'tracks'}"
+						:options="{
+							group: 'tracks',
+							handle: '.handle'
+						}"
 						@start="drag=true"
 						@end="drag=false"
 						:move="onDragMove">
 						<tr v-for="(t, idx) in recording.Tracks">
 							<td><span>{{t.title}}</span></td>
+							<td class="handle"><span class="fa fa-arrows"></span></td>
 							<td>{{secondsFormatted(t.length)}}</td>
 							<td>
 								<b-btn class="add-btn" variant="link" v-on:click="onAddClick(t)">
@@ -105,14 +119,15 @@ import ChecklistCheckbox from './ChecklistCheckbox';
 import FavoriteCheckbox from './FavoriteCheckbox';
 
 export default {
-	props: ['recording', 'idx', 'startOpen'],
+	props: ['recording', 'idx', 'startOpen', 'is_checked', 'is_favorite'],
 	components: {
 		draggable,
 		ChecklistCheckbox,
 		FavoriteCheckbox,
 	},
 	data: function () {
-		return {}
+		return {
+		}
 	},
 	computed: {
 		...mapState({
@@ -132,7 +147,8 @@ export default {
 				return this.recording.Tracks;
 			},
 			// do nothing
-			set(val) {},
+			set(val) {
+			},
 		},
 	},
 	methods: {
@@ -195,11 +211,8 @@ export default {
 			});
 		},
 	},
-	created () {
-		console.log('Recording::created', this.$props.recording.id, this.$props.idx);
-	},
 	mounted: function() {
-		//console.log('Recording::mounted $el: ', this.$el);
+		console.log('Recording::mounted title: ' + this.$props.recording.title + ' is_checked: ' + this.$props.is_checked + ' is_favorite: ' + this.$props.is_favorite);
 	}
 }
 </script>

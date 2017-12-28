@@ -18,7 +18,7 @@ export default {
 			let txt = 'find a show and add its tracks below to start listenting!';
 			
 			if (params.show_id) {
-				txt = 'you can <b class="montserratbold">drag tracks</b> from the show here or use the <span class="fa fa-plus"></span>&nbsp;<b class="montserratbold">buttons</b> to fill your playlist.';
+				txt = 'you can drag tracks here using the <span class="fa fa-arrows"></span><b class="montserratbold">&nbsp;handles</b> or use the <span class="fa fa-plus"></span>&nbsp;<b class="montserratbold">buttons</b> to fill your playlist.';
 			} else if (params.year) {
 				txt = 'choose a show to see its recordings and start listening!';
 			} else {

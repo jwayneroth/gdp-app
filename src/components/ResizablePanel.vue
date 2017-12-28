@@ -13,7 +13,15 @@
 					</div>
 				</div>
 			</div>
-			<div v-if="resizable" ref="resizer" :class="resizer_class" :style="style.resizer" v-on:touchstart.stop.prevent="handleDown" @mousedown.stop.prevent="handleDown">
+			<div 
+				v-if="resizable"
+				ref="resizer"
+				:class="resizer_class"
+				:style="style.resizer"
+				v-on:touchstart.stop.prevent="e=>false"
+				v-on:touchmove="handleTouchMove"
+				@mousedown.stop.prevent="handleDown"
+			>
 				<span class="handle pane-btn"/>
 			</div>
 			<div ref="right_pane" :class="[right_open ? 'open' : 'closed', 'pane', 'right-pane']" :style="style.right_pane">
@@ -99,6 +107,25 @@ export default {
 				this.lp_width = this.rp_width = .5;
 			} else {
 				this.rp_width = 1;
+			}
+		},
+		handleTouchMove: function(e) {
+			//console.log('handleTouchMove', e);
+			if(e.touches.length == 1) {
+				const mouseX = e.touches[0].pageX; //e.pageX || e.clientX + document.documentElement.scrollLeft;
+				const elX = this.$el.getBoundingClientRect().left;
+				const elW = this.$el.offsetWidth || this.$el.clientWidth;
+		
+				let lw = (mouseX - elX) / elW;
+		
+				if (lw < .2) {
+					lw = .2
+				} else if (lw > .8) {
+					lw = .8;
+				}
+		
+				this.lp_width = lw;
+				this.rp_width = 1 - lw;
 			}
 		},
 		handleDown: function(evt) {

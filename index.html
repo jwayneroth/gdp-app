@@ -22,6 +22,13 @@
 					if (file.match(/\.(js|css)$/)) { %>
 		<link rel="<%= chunk.initial?'preload':'prefetch' %>" href="<%= htmlWebpackPlugin.files.publicPath + file %>" as="<%= file.match(/\.css$/)?'style':'script' %>">
 		<% }}} %>
+		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-111661947-1"></script>
+		<script>
+			window.dataLayer = window.dataLayer || [];
+			function gtag(){dataLayer.push(arguments);}
+			gtag('js', new Date());
+			gtag('config', 'UA-111661947-1');
+		</script>
 	</head>
 	<body>
 		<noscript>

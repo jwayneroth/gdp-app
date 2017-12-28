@@ -6,18 +6,18 @@
 				<!--<breadcrumb/>-->
 			</div>
 			<div v-if="show" class="mx-4" v-b-tooltip.hover title="add show to checklist">
-				<checklist-checkbox :name="'check-show-' + show.id" :initChecked="show.is_favorite" :onClickCallback="toggleChecklist" />
+				<checklist-checkbox :name="'check-show-' + show.id" :initChecked="show.is_checked" :onClickCallback="toggleChecklist" />
 			</div>
 			<div v-if="show" class="mr-5" v-b-tooltip.hover title="favorite show">
 				<favorite-checkbox :name="'favorite-show-' + show.id" :initChecked="show.is_favorite" :onClickCallback="toggleFavorite" />
 			</div>
 		</div>
 		<div v-for="(val, idx) in recordings">
-			<recording v-if="idx === 0" :recording="val" :idx="idx" :start-open="true" />
+			<recording v-if="idx === 0" :recording="val" :idx="idx" :start-open="true" :is_checked="val.is_checked" :is_favorite="val.is_favorite" />
 			<div v-else class="mb-2">
 				<h3 v-if="idx === 1" class="my-2">{{recordings.length - 1}} additional recordings</h3>
 				<hr/>
-				<recording :recording="val" :idx="idx" :start-open="false" />
+				<recording :recording="val" :idx="idx" :start-open="false" :is_checked="val.is_checked" :is_favorite="val.is_favorite" />
 			</div>
 		</div>
 	</div>
@@ -73,6 +73,7 @@ export default {
 					val.is_checked = (this.recording_checks.indexOf(val.id) !== -1);
 				});
 			}
+			console.log('Show::get recordings', recs);
 			return recs;
 		},
 	},

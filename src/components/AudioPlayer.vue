@@ -28,7 +28,10 @@
 				v-model="tracks"
 				:element="'tbody'"
 				:class="playlistClass"
-				:options="{group: 'tracks'}"
+				:options="{
+					group: 'tracks',
+					handle: '.handle'
+				}"
 				@start="drag=true"
 				@end="drag=false"
 				:move="onDragMove">
@@ -37,6 +40,7 @@
 						<audio v-if="shouldPreload(idx)" preload="auto" :src="t.file" style="display:none;" @canplaythrough="onAudioLoaded(t)" />
 						<span class="title" v-on:click="onTrackClick(t)">{{t.title}}</span>
 					</td>
+					<td class="handle"><span class="fa fa-arrows"></span></td>
 					<td>{{secondsFormatted(t.length)}}</td>
 					<td>
 						<b-btn variant="link" class="text-secondary" @click="onRemoveClick(t)">

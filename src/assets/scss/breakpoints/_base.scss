@@ -91,9 +91,13 @@ html {
 		&.draggable-table {
 			tbody {
 				tr {
-					cursor: move;
+					//cursor: move;
 					
 					td {
+						&.handle {
+							//padding: 1em;
+							cursor: move;
+						}
 						.btn {
 							cursor: pointer;
 						}
