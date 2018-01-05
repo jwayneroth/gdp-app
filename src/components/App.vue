@@ -76,7 +76,7 @@ export default {
 			} else {
 				this.active_pane = panel;
 			}
-			setTimeout(this.resize, 150);
+			setTimeout(this.resize, 250);
 		},
 		logout: function() {
 			console.log('App::logout');

@@ -1,15 +1,17 @@
 <template>
 	<div class="recordings">
-		<div class="d-flex align-items-end" v-if="user.logged_in">
+		<div class="d-flex align-items-end">
 			<div class="mr-auto">
 				<router-link v-if="activeShow" :to="'/years/' + activeShow.year">back to {{activeShow.year}}</router-link>
 				<!--<breadcrumb/>-->
 			</div>
-			<div v-if="show" class="mx-4" v-b-tooltip.hover title="add show to checklist">
-				<checklist-checkbox :name="'check-show-' + show.id" :initChecked="show.is_checked" :onClickCallback="toggleChecklist" />
-			</div>
-			<div v-if="show" class="mr-5" v-b-tooltip.hover title="favorite show">
-				<favorite-checkbox :name="'favorite-show-' + show.id" :initChecked="show.is_favorite" :onClickCallback="toggleFavorite" />
+			<div v-if="user.logged_in">
+				<div v-if="show" class="mx-4" v-b-tooltip.hover title="add show to checklist">
+					<checklist-checkbox :name="'check-show-' + show.id" :initChecked="show.is_checked" :onClickCallback="toggleChecklist" />
+				</div>
+				<div v-if="show" class="mr-5" v-b-tooltip.hover title="favorite show">
+					<favorite-checkbox :name="'favorite-show-' + show.id" :initChecked="show.is_favorite" :onClickCallback="toggleFavorite" />
+				</div>
 			</div>
 		</div>
 		<div v-for="(val, idx) in recordings">
