@@ -3,13 +3,12 @@
 		<div class="d-flex align-items-end">
 			<div class="mr-auto">
 				<router-link v-if="activeShow" :to="'/years/' + activeShow.year">back to {{activeShow.year}}</router-link>
-				<!--<breadcrumb/>-->
 			</div>
 			<div v-if="user.logged_in">
-				<div v-if="show" class="mx-4" v-b-tooltip.hover title="add show to checklist">
+				<div v-if="show" class="d-inline-block mx-4" v-b-tooltip.hover title="add show to checklist">
 					<checklist-checkbox :name="'check-show-' + show.id" :initChecked="show.is_checked" :onClickCallback="toggleChecklist" />
 				</div>
-				<div v-if="show" class="mr-5" v-b-tooltip.hover title="favorite show">
+				<div v-if="show" class="d-inline-block mr-5" v-b-tooltip.hover title="favorite show">
 					<favorite-checkbox :name="'favorite-show-' + show.id" :initChecked="show.is_favorite" :onClickCallback="toggleFavorite" />
 				</div>
 			</div>
@@ -31,14 +30,12 @@ import {mapState, mapGetters, mapActions} from 'vuex';
 import ChecklistCheckbox from './ChecklistCheckbox';
 import FavoriteCheckbox from './FavoriteCheckbox';
 import Recording from './Recording.vue';
-import Breadcrumb from './Breadcrumb.vue';
 
 export default {
 	components: {
 		ChecklistCheckbox,
 		FavoriteCheckbox,
-		Recording,
-		Breadcrumb
+		Recording
 	},
 	data: function () {
 		return {}
