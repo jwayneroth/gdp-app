@@ -105,6 +105,7 @@ export default {
 		setVolume: function(div) {
 			this.audio.volume = div * 20 / 100;
 			this.volumeDiv = div;
+			if (this.isMuted) this.isMuted = false;
 			this.updateVolumeBars(div);
 		},
 		updateVolumeBars: function(div) {

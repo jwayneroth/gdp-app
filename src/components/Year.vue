@@ -31,9 +31,9 @@ export default {
 	computed: {
 		...mapState({
 			user: 'user',
-			showsForYear: state => state.shows.shows,
-			show_stars: state => state.user.show_stars,
-			show_checks: state => state.user.show_checks,
+			shows: state => state.shows.shows,
+			//show_stars: state => state.user.show_stars,
+			//show_checks: state => state.user.show_checks,
 		}),
 		fields: function() {
 			let arr = [
@@ -44,16 +44,14 @@ export default {
 				{ key: 'average_rating', label: '~rating', formatter: v => parseInt(v, 10), sortable: true},
 				{ key: 'has_soundboard', label: 'sbd', formatter: v => (v) ? '<span class="fa fa-check"></span>' : ''},
 			];
-			if (this.user.logged_in) arr.push({ key: 'checklist', label: 'list'}, { key: 'favorite', label: 'star'},);
+			//if (this.user.logged_in) arr.push({ key: 'checklist', label: 'list'}, { key: 'favorite', label: 'star'},);
 			return arr;
 		},
 		/**
 		 * add favorite and checked props from user onto shows
 		 */
-		shows: function() {
-			
+		/*shows: function() {
 			let shows = this.showsForYear.slice();
-			
 			if (this.user.logged_in) {
 				shows.forEach((val) => {
 					val.is_favorite = (this.show_stars.indexOf(val.id) !== -1);
@@ -61,7 +59,7 @@ export default {
 				});
 			}
 			return shows;
-		},
+		},*/
 	},
 	watch: {
 		'$route.params.year': function (year) {
@@ -70,6 +68,7 @@ export default {
 		},
 	},
 	methods: {
+		
 		displayDate: function(dd) {
 			const t = dd.split('-');
 			return t[1] + '/' + t[2] + '/' + t[0].substring(2);

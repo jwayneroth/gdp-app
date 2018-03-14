@@ -6,6 +6,8 @@ import user from './modules/user';
 import ui from './modules/ui';
 import shows from './modules/shows';
 import playlist from './modules/playlist';
+import list from './modules/list';
+import modal from './modules/modal';
 
 window.axios = require('axios');
 
@@ -19,10 +21,13 @@ export default new Vuex.Store({
 		ui,
 		shows,
 		playlist,
+		list,
+		modal,
 	},
 	strict: debug,
 	plugins: [
 		createPersistedState({
+			key: 'gdp',
 			paths: [
 				'user',
 				'playlist.track_ids',

@@ -4,6 +4,14 @@
 			<h3>{{recording.title}}</h3>
 			<div class="d-flex align-items-end mt-1 mb-2">
 				<div>rating: {{recording.average_rating}} / {{recording.reviews_count}} reviews</div>
+				<div v-if="user.logged_in" class="mx-4" v-b-tooltip.hover title="save recording to a list">
+					<checklist-checkbox
+						:name="'check-recording-' + recording.id"
+						:initChecked="is_checked"
+						:onClickCallback="addRecordingToList"
+					/>
+				</div>
+				<!--
 				<div v-if="user.logged_in" class="mx-4" v-b-tooltip.hover title="add recording to checklist">
 					<checklist-checkbox
 						:name="'check-recording-' + recording.id"
@@ -18,6 +26,7 @@
 						:onClickCallback="toggleRecordingFavorite"
 					/>
 				</div>
+				-->
 			</div>
 			<div class="d-flex justify-content-between mb-3">
 				<div class="">
@@ -74,8 +83,11 @@
 					<thead>
 						<tr>
 							<th>title</th><th></th><th>length</th><th>add</th>
+							<th v-if="user.logged_in">save</th>
+							<!--
 							<th v-if="user.logged_in">checklist</th>
 							<th v-if="user.logged_in">favorite</th>
+							-->
 						</tr>
 					</thead>
 					<draggable
@@ -98,11 +110,16 @@
 								</b-btn>
 							</td>
 							<td v-if="user.logged_in">
+								<checklist-checkbox :name="'check-track-' + t.id" :data-id="t.id" :initChecked="t.is_checked" :onClickCallback="addTrackToList" v-b-tooltip.hover title="save track to a list" />
+							</td>
+							<!--
+							<td v-if="user.logged_in">
 								<checklist-checkbox :name="'check-track-' + t.id" :data-id="t.id" :initChecked="t.is_checked" :onClickCallback="toggleChecklist" />
 							</td>
 							<td v-if="user.logged_in">
 								<favorite-checkbox :name="'favorite-track-' + t.id" :data-id="t.id" :initChecked="t.is_favorite" :onClickCallback="toggleFavorite" />
 							</td>
+							-->
 						</tr>
 					</draggable>
 				</table>
@@ -132,18 +149,18 @@ export default {
 	computed: {
 		...mapState({
 			user: 'user',
-			track_stars: state => state.user.track_stars,
-			track_checks: state => state.user.track_checks,
+			//track_stars: state => state.user.track_stars,
+			//track_checks: state => state.user.track_checks,
 		}),
 		tracks: {
 			// add favorite and checked props from user onto tracks
 			get() {
-				if (this.user.logged_in) {
+				/*if (this.user.logged_in) {
 					this.recording.Tracks.forEach((val) => {
 						val.is_favorite = (this.track_stars.indexOf(val.id) !== -1);
 						val.is_checked = (this.track_checks.indexOf(val.id) !== -1);
 					});
-				}
+				}*/
 				return this.recording.Tracks;
 			},
 			// do nothing
@@ -160,7 +177,6 @@ export default {
 		
 		onAddAllClick: function(e) {
 			console.log('Recording::onAddAllClick', this.recording.Tracks);
-			
 			this.$store.commit('ADD_TRACKS', {tracks: this.recording.Tracks})
 		},
 		
@@ -172,42 +188,27 @@ export default {
 		// prevent adding duplicate to playlist
 		onDragMove: function (evt) {
 			//console.log('onDragMove', evt);
-			
 			const track_id = evt.draggedContext.element.id;
-			
 			if (this.$store.state.playlist.tracks_by_id.hasOwnProperty(track_id)) return false;
-			
 		},
 		
-		toggleFavorite(evt) {
-			this.$store.dispatch('set_user_choice', {
-				list_type: 'favorite',
-				media_type: 'track',
-				media_id: parseInt(evt.target.getAttribute('data-id'))
+		addTrackToList(evt) {
+			this.$store.dispatch('showModal', {
+				modalType: 'ModalListAddCreate',
+				modalProps: {
+					media_type: 'track',
+					media_id: parseInt(evt.target.getAttribute('data-id'))
+				},
 			});
 		},
 		
-		toggleChecklist(evt) {
-			this.$store.dispatch('set_user_choice', {
-				list_type: 'checklist',
-				media_type: 'track',
-				media_id: parseInt(evt.target.getAttribute('data-id'))
-			});
-		},
-		
-		toggleRecordingFavorite(evt) {
-			this.$store.dispatch('set_user_choice', {
-				list_type: 'favorite',
-				media_type: 'recording',
-				media_id: parseInt(this.recording.id)
-			});
-		},
-		
-		toggleRecordingChecklist(evt) {
-			this.$store.dispatch('set_user_choice', {
-				list_type: 'checklist',
-				media_type: 'recording',
-				media_id: parseInt(this.recording.id)
+		addRecordingToList(evt) {
+			this.$store.dispatch('showModal', {
+				modalType: 'ModalListAddCreate',
+				modalProps: {
+					media_type: 'recording',
+					media_id: parseInt(this.recording.id)
+				},
 			});
 		},
 	},

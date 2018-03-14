@@ -47,12 +47,14 @@
 							<span class="fa fa-minus"></span>
 						</b-btn>
 					</td>
+					<!--
 					<td v-if="user.logged_in">
 						<checklist-checkbox :name="'check-track-' + t.id" :data-id="t.id" :initChecked="t.is_checked" :onClickCallback="toggleChecklist" />
 					</td>
 					<td v-if="user.logged_in">
 						<favorite-checkbox :name="'favorite-track-' + t.id" :data-id="t.id" :initChecked="t.is_favorite" :onClickCallback="toggleFavorite" />
 					</td>
+					-->
 				</tr>
 			</draggable>
 		</table>
@@ -84,6 +86,7 @@ export default {
 		}
 	},
 	computed: {
+		
 		...mapState({
 			user: 'user',
 			track_stars: state => state.user.track_stars,
@@ -91,14 +94,18 @@ export default {
 			track_ids: state => state.playlist.track_ids,
 			tracks_by_id: state => state.playlist.tracks_by_id,
 		}),
+		
 		currentTitle: function() { return (this.currentTrack) ? this.currentTrack.title : null },
+		
 		currentFile: function() { return (this.currentTrack) ? this.currentTrack.file: null },
+		
 		isLast: function() {
 			if (!this.currentTrack) return true;
 			const idx = this.track_ids.indexOf(this.currentTrack.id);
 			if (idx === (this.track_ids.length -1)) return true;
 			return false;
 		},
+		
 		isFirst: function() {
 			if (!this.currentTrack) return true;
 			const idx = this.track_ids.indexOf(this.currentTrack.id);
@@ -109,18 +116,19 @@ export default {
 		tracks: {
 			get() {
 				let tracks = this.track_ids.map((t) => Object.assign({},this.tracks_by_id[t]));
-				if (this.user.logged_in) {
+				/*if (this.user.logged_in) {
 					tracks.forEach((val) => {
 						val.is_favorite = (this.track_stars.indexOf(val.id) !== -1);
 						val.is_checked = (this.track_checks.indexOf(val.id) !== -1);
 					});
-				}
+				}*/
 				return tracks;
 			},
 			set(val) {
 				this.$store.commit('UPDATE_PLAYLIST', {tracks: val})
 			}
 		},
+		
 		playlistClass: function() {
 			let c = '';
 			if (!this.tracks.length) c += ' empty';
@@ -128,6 +136,7 @@ export default {
 		},
 	},
 	methods: {
+		
 		secondsFormatted: function(secs) {
 			const m = Math.floor(secs/60);
 			const s = '0' + (secs - m * 60);

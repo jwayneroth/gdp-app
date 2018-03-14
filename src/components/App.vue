@@ -29,6 +29,7 @@
 				<audio-player slot="right-pane"></audio-player>
 			</resizable-panel>
 		</main>
+		<modal-root />
 	</div>
 </template>
 
@@ -38,6 +39,8 @@ import {mapState, mapGetters, mapActions} from 'vuex';
 import ResizablePanel from './ResizablePanel.vue';
 import NavPanel from './NavPanel.vue';
 import AudioPlayer from './AudioPlayer.vue';
+import ModalRoot from './ModalRoot.vue';
+
 import {setAuthHeader} from '../api';
 
 const debounce = require('lodash.debounce');
@@ -48,6 +51,7 @@ export default {
 		ResizablePanel,
 		NavPanel,
 		AudioPlayer,
+		ModalRoot,
 	},
 	data: function () {
 		return {
@@ -107,11 +111,14 @@ export default {
 		if (this.$store.state.user.token) {
 			setAuthHeader(this.$store.state.user.token);
 		}
+		this.$router.afterEach((to, from, next) => {setTimeout(this.resize, 200)});
 	},
 	mounted: function() {
 		this.debounced_resize = debounce(this.resize, 200);
 		window.addEventListener('resize', this.debounced_resize);
-		this.resize();
+		this.$nextTick(() => {
+			setTimeout(this.resize, 200);
+		});
 	},
 	beforeDestroy: function () {
 		window.removeEventListener('resize', this.debounced_resize);

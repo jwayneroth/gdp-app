@@ -1,5 +1,4 @@
 export const SET_AUTH = 'SET_AUTH';
-export const SET_AUTH_ERROR = 'SET_AUTH_ERROR';
 export const LOGOUT = 'LOGOUT';
 export const TOGGLE_USER_CHOICE = 'TOGGLE_USER_CHOICE';
 
@@ -16,3 +15,6 @@ export const ADD_TRACKS = 'ADD_TRACKS';
 export const REMOVE_TRACK = 'REMOVE_TRACK';
 export const EMPTY_PLAYLIST = 'EMPTY_PLAYLIST';
 export const UPDATE_PLAYLIST = 'UPDATE_PLAYLIST';
+
+export const SHOW_MODAL = 'SHOW_MODAL';
+export const HIDE_MODAL = 'HIDE_MODAL';

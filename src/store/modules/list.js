@@ -1,36 +1,38 @@
 import Vue from 'vue'
 
-import * as api from '../../api/user';
 import * as types from '../mutation-types';
 import * as utils from '../../lib/utils';
 
 import {setAuthHeader} from '../../api/';
 
 const initial_state = {
-	id: null,
-	username: null,
-	logged_in: false,
-	is_admin: false,
-	token: null,
+	list_ids: [],
+	lists_by_id: null,
+	active_list: {
+		id: null,
+		name: '',
+		tracks: [],
+		recordings: [],
+		shows: [],
+	},
 }
 
 const getters = {
-	
+	//listIds: state => utils.flattenObjectArray(state.lists),
 }
 
 const mutations = {
 	
-	[types['LOGOUT']](state) {
-		for (const key in initial_state) {
-			Vue.set(state, key, initial_state[key]);
-		}
-	},
-	
 	[types['SET_AUTH']](state, {user}) {
 		
+		const list_ids = utils.flattenObjectArray(user.Lists);
+		const lists_by_id = utils.arrayToObject(user.Lists, 'id');
+		
+		delete user.Lists;
+		
 		const new_state = {
-			...user,
-			logged_in: true,
+			list_ids,
+			lists_by_id,
 		};
 		
 		for (const key in new_state) {
@@ -51,26 +53,6 @@ const mutations = {
 }
 
 const actions = {
-	
-	/*checkAuth({commit}) {
-		const token = localStorage.getItem('token');
-		let jwt = (token) ? true : false;
-		commit(types['SET_AUTH, {jwt});
-	},*/
-	
-	login({commit}, payload) {
-		api.login(payload, user => {
-			setAuthHeader(user.token);
-			commit(types['SET_AUTH'], {user});
-		}, err => {});
-	},
-	
-	register({commit}, payload) {
-		api.register(payload, user => {
-			setAuthHeader(user.token);
-			commit(types['SET_AUTH'], {user});
-		}, err => {});
-	},
 	
 	set_user_choice({state, commit}, {list_type, media_type, media_id}) {
 		
