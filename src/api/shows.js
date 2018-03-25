@@ -3,7 +3,7 @@ import {axios, API_URL, setAuthHeader} from './';
 export function getYears(cb) {
 	axios.get(API_URL + '/api/years')
 	.then((response) => {
-		console.log('api::getYears success', response.data);
+		//console.log('api::getYears success', response.data);
 		cb(response.data);
 	})
 	.catch((err) => {
@@ -14,7 +14,7 @@ export function getYears(cb) {
 export function getShowsForYear(year, cb) {
 	axios.get(API_URL + '/api/years/' + year)
 	.then((response) => {
-		console.log('api::getShowsForYear success', response.data);
+		//console.log('api::getShowsForYear success', response.data);
 		cb(response.data);
 	})
 	.catch((err) => {
@@ -25,7 +25,7 @@ export function getShowsForYear(year, cb) {
 export function getShowById(id, cb) {
 	axios.get(API_URL + '/api/shows/' + id)
 	.then((response) => {
-		console.log('api::getShowById success', response.data);
+		//console.log('api::getShowById success', response.data);
 		cb(response.data);
 	})
 	.catch((err) => {
@@ -37,7 +37,7 @@ export function getFullShow(id, cb) {
 	
 	axios.get(API_URL + '/api/shows/' + id)
 	.then((response) => {
-		console.log('api::getFullShow success', response.data);
+		//console.log('api::getFullShow success', response.data);
 		cb(response.data);
 	})
 	.catch((err) => {
@@ -49,7 +49,7 @@ export function getTeasers(media_type, ids, cb) {
 	
 	axios.post(API_URL + '/api/teasers/' + media_type, {ids})
 	.then((response) => {
-		console.log('api::getTeasers success', response.data);
+		//console.log('api::getTeasers success', response.data);
 		cb(response.data);
 	})
 	.catch((err) => {

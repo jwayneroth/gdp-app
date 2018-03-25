@@ -192,29 +192,29 @@ export default {
 			if (this.$store.state.playlist.tracks_by_id.hasOwnProperty(track_id)) return false;
 		},
 		
-		addTrackToList(evt) {
+		addTrackToList: function(evt) {
 			this.$store.dispatch('showModal', {
 				modalType: 'ModalListAddCreate',
 				modalProps: {
-					media_type: 'track',
-					media_id: parseInt(evt.target.getAttribute('data-id'))
+					mediaType: 'track',
+					mediaId: parseInt(evt.target.getAttribute('data-id'))
 				},
 			});
 		},
 		
-		addRecordingToList(evt) {
+		addRecordingToList: function(evt) {
 			this.$store.dispatch('showModal', {
 				modalType: 'ModalListAddCreate',
 				modalProps: {
-					media_type: 'recording',
-					media_id: parseInt(this.recording.id)
+					mediaType: 'recording',
+					mediaId: parseInt(this.recording.id)
 				},
 			});
 		},
 	},
-	mounted: function() {
+	/*mounted: function() {
 		console.log('Recording::mounted title: ' + this.$props.recording.title + ' is_checked: ' + this.$props.is_checked + ' is_favorite: ' + this.$props.is_favorite);
-	}
+	}*/
 }
 </script>
 

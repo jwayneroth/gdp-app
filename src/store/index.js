@@ -6,7 +6,7 @@ import user from './modules/user';
 import ui from './modules/ui';
 import shows from './modules/shows';
 import playlist from './modules/playlist';
-import list from './modules/list';
+import lists from './modules/lists';
 import modal from './modules/modal';
 
 window.axios = require('axios');
@@ -21,7 +21,7 @@ export default new Vuex.Store({
 		ui,
 		shows,
 		playlist,
-		list,
+		lists,
 		modal,
 	},
 	strict: debug,

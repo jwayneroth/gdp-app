@@ -39,6 +39,21 @@ export function register(payload, cb, fail) {
 	});
 }
 
+export function getUser() {
+	return new Promise((resolve, reject) => {
+		axios.get(API_URL + '/api/user')
+		.then((response) => {
+			console.log('api::getUser success', response.data);
+			resolve(response.data);
+		})
+		.catch((err) => {
+			console.log('api::getUser error', err.response.data);
+			reject(err.response.data);
+		});
+	});
+}
+
+
 export function set_user_choice(media, list, media_id, val, cb) {
 	
 	const endpoint = API_URL + '/users/choice/' + media + '/' + list + '/' + media_id;

@@ -3,14 +3,14 @@
 		<h3 class="pane-title">{{$route.params.year}}</h3>
 		<router-link class="d-block mb-2" to="/">back to years</router-link>
 		<b-table ref="shows_table" :fields="fields" :items="shows" @row-clicked="rowClick">
-			<!--<template slot="title" slot-scope="data">
-				<router-link :to="'/shows/' + data.item.id">{{data.item.title}}</router-link>
-			</template>-->
-			<template slot="checklist" slot-scope="data">
-				<checklist-checkbox :name="'check-show-' + data.item.id" :data-id="data.item.id" :initChecked="data.item.is_checked" :onClickCallback="toggleShowChecklist" />
-			</template>
-			<template slot="favorite" slot-scope="data">
-				<favorite-checkbox :name="'favorite-show-' + data.item.id" :data-id="data.item.id" :initChecked="data.item.is_favorite" :onClickCallback="toggleShowFavorite" />
+			<template slot="list" slot-scope="data">
+				<checklist-checkbox
+					:name="'check-show-' + data.item.id"
+					:data-id="data.item.id"
+					:initChecked="data.item.is_checked"
+					:onClickCallback="addShowToList"
+					v-b-tooltip.hover title="save show to a list"
+				/>
 			</template>
 		</b-table>
 	</div>
@@ -45,6 +45,7 @@ export default {
 				{ key: 'has_soundboard', label: 'sbd', formatter: v => (v) ? '<span class="fa fa-check"></span>' : ''},
 			];
 			//if (this.user.logged_in) arr.push({ key: 'checklist', label: 'list'}, { key: 'favorite', label: 'star'},);
+			if (this.user.logged_in) arr.push({ key: 'list', label: 'list'});
 			return arr;
 		},
 		/**
@@ -74,19 +75,13 @@ export default {
 			return t[1] + '/' + t[2] + '/' + t[0].substring(2);
 		},
 		
-		toggleShowFavorite: function(evt) {
-			this.$store.dispatch('set_user_choice', {
-				list_type: 'favorite',
-				media_type: 'show',
-				media_id: parseInt(evt.target.getAttribute('data-id'))
-			});
-		},
-		
-		toggleShowChecklist: function(evt) {
-			this.$store.dispatch('set_user_choice', {
-				list_type: 'checklist',
-				media_type: 'show',
-				media_id: parseInt(evt.target.getAttribute('data-id'))
+		addShowToList: function(evt) {
+			this.$store.dispatch('showModal', {
+				modalType: 'ModalListAddCreate',
+				modalProps: {
+					mediaType: 'show',
+					mediaId: parseInt(evt.target.getAttribute('data-id'))
+				},
 			});
 		},
 		

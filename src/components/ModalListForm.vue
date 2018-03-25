@@ -1,92 +1,92 @@
 <template>
 	<div id="form-list" class="modal-content">
 		<header class="modal-header">
-			<div>
-				<!--<button-close-custom :click="() => {$store.dispatch('hideModal')}" />
-				<h4 class="modal-title">Sign in to Play!</h4> -->
-			</div>
+			<h3>Add {{typeLabel}} to...</h3>
+			<b-button variant="primary" @click="() => {$store.dispatch('hideModal')}">close</b-button>
 		</header>
 		<div class="modal-body">
 			<div :class="'text-' + status" v-if="message"><p v-html="message"/></div>
-			<div class="alert alert-danger" v-if="loginError"><p v-html="loginError"></p></div>
+			<div class="alert alert-danger" v-if="error"><p v-html="error"></p></div>
 			<div class="form-group">
-				<input type="text" class="form-control" placeholder="Enter your email or username" v-model="loginValues.login">
+				<label for="newListTitle">A New List</label>
+				<input id="newListTitle" type="text" class="form-control" placeholder="List Title" v-model="formValues.newTitle">
 			</div>
-			<div class="form-group">
-				<input type="password" class="form-control" placeholder="Enter your password" v-model="loginValues.password">
+			<div class="mb-4">
+				<b-button type="submit" variant="primary" v-on:click="addToNew">Create List</b-button>
 			</div>
-			<div class="checkbox">
-				<input type="checkbox" name="remember" id="remember" :checked="loginValues.remember" @click.prevent="toggleRemeber">
-				<label for="remember">Remember Me</label>
+			<div v-if="listIds.length" class="form-group">
+				<label for="existingListSelect">An Existing List</label>
+				<select class="form-control" v-model="formValues.existingId" id="existingListSelect">
+					<option v-for="id in listIds" :key="id">{{listsById[id].title}}</option>
+				</select>
 			</div>
-			<div class="text-center"><b-button type="submit" variant="primary" v-on:click="login">submit</b-button></div>
+			<div class="">
+				<b-button type="submit" variant="primary" v-on:click="addToExisting">Add To List</b-button>
+			</div>
 		</div>
-		<footer class="modal-footer">
-			<div>
-				<p>Haven't signed up yet? <a href="#" @click.prevent="toggleRegister">Get Started</a></p>
-				<p>
-					<span>Forgot your password? </span>
-					<a href="#" role="button" @click.prevent="$store.dispatch('showModal', {modalType: 'form-forgot'})">Click here.</a>
-				</p>
-			</div>
-		</footer>
 	</div>
 </template>
 
 <script>
+import {mapState} from 'vuex';
 
 export default {
 	name: 'modal-list-add-create',
 	props: {
 		status: { type: String, default: 'info' },
 		message: { type: String, default: null },
+		mediaType: { type: String, default: null },
+		mediaId: { type: Number, default: null },
 	},
 	components: {
 	},
 	data: function() {
 		return {
-			loginValues: {
-				login: null,
-				password: null,
-				remember: false,
+			formValues: {
+				newTitle: null,
+				existingId: null, 
 			},
-			loginError: '',
+			error: '',
 		}
+	},
+	computed: {
+		
+		...mapState({
+			listIds: state => state.lists.list_ids,
+			listsById: state => state.lists.lists_by_id,
+		}),
+		
+		typeLabel: function() { return this.$props.mediaType.charAt(0).toUpperCase() + this.$props.mediaType.slice(1) },
 	},
 	methods: {
 		
-		login() {
-			console.log('LoginForm::login');
+		addToNew: function() {
 			
-			this.$store.dispatch('updateTrackers', {contestAction: 'form-login-submit'});
+			const title = this.formValues.newTitle;
 			
-			const {login, password, remember} = this.loginValues;
-			
-			if (!login || login === '' || !password || password === '') {
-				this.loginError = 'You must fill out all the fields!';
+			if (!title) {
+				this.error = 'You must create a title for the new list.'
 				return;
 			}
 			
-			this.loginError = '';
+			this.error = '';
 			
-			this.$store.dispatch('login', {login, password, remember})
+			const media = {type: this.mediaType, id: this.mediaId};
+			
+			this.$store.dispatch('createList', {title, media})
 			.then(() => {
+				console.log('ModalListForm createList success');
 				this.$store.dispatch('hideModal');
 			})
 			.catch(err => {
-				this.loginError = err;
+				console.log('ModalListForm createList error');
+				this.error = err;
 			});
 		},
 		
-		toggleRegister() {
-			this.$store.dispatch('updateTrackers', {contestAction: 'register'});
-			this.$store.dispatch('showModal', {modalType: 'form-register'})
+		addToExisting: function() {
+			
 		},
-		
-		toggleRemeber() {
-			this.$store.dispatch('updateTrackers', {contestAction: 'forgot'});
-			this.loginValues.remember = !this.loginValues.remember;
-		}
-	}
+	},
 }
 </script>

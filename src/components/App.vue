@@ -106,11 +106,8 @@ export default {
 			}
 		},
 	},
-	// TODO: check store access token
 	created: function() {
-		if (this.$store.state.user.token) {
-			setAuthHeader(this.$store.state.user.token);
-		}
+		this.$store.dispatch('checkToken');
 		this.$router.afterEach((to, from, next) => {setTimeout(this.resize, 200)});
 	},
 	mounted: function() {

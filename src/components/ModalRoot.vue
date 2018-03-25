@@ -48,20 +48,19 @@ export default {
 		},
 	},
 	methods: {
-
+		
 		onModalShow(evt) {
-			console.log('ModalRoot::onModalShow', window.parentIFrame);
+			console.log('ModalRoot::onModalShow');
 		},
-
+		
 		onModalShown(evt) {
 		},
-
+		
 		onModalHide(evt) {
 			console.log('ModalRoot::onModalHide');
 		},
-
+		
 		onModalHidden(evt) {
-			console.log('ModalRoot::onModalHidden');
 			this.$store.dispatch('hideModal');
 		},
 	},

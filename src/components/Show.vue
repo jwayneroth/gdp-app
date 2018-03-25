@@ -4,21 +4,30 @@
 			<div class="mr-auto">
 				<router-link v-if="show" :to="'/years/' + show.year">back to {{show.year}}</router-link>
 			</div>
-			<!--<div v-if="user.logged_in">
-				<div v-if="show" class="d-inline-block mx-4" v-b-tooltip.hover title="add show to checklist">
-					<checklist-checkbox :name="'check-show-' + show.id" :initChecked="show.is_checked" :onClickCallback="toggleChecklist" />
+			<div v-if="user.logged_in" class="mr-5">
+				<div v-if="show">
+					<checklist-checkbox
+						:name="'check-show-' + show.id"
+						:data-id="show.id"
+						:initChecked="show.is_checked"
+						:onClickCallback="addShowToList"
+						v-b-tooltip.hover title="save show to a list"
+					/>
 				</div>
-				<div v-if="show" class="d-inline-block mr-5" v-b-tooltip.hover title="favorite show">
-					<favorite-checkbox :name="'favorite-show-' + show.id" :initChecked="show.is_favorite" :onClickCallback="toggleFavorite" />
-				</div>
-			</div>-->
+			</div>
 		</div>
 		<div v-for="(val, idx) in recordings">
 			<recording v-if="idx === 0" :recording="val" :idx="idx" :start-open="true" :is_checked="val.is_checked" :is_favorite="val.is_favorite" />
 			<div v-else class="mb-2">
 				<h3 v-if="idx === 1" class="my-2">{{recordings.length - 1}} additional recordings</h3>
 				<hr/>
-				<recording :recording="val" :idx="idx" :start-open="false" :is_checked="val.is_checked" :is_favorite="val.is_favorite" />
+				<recording
+					:recording="val"
+					:idx="idx"
+					:start-open="false"
+					:is_checked="val.is_checked"
+					:is_favorite="val.is_favorite"
+				/>
 			</div>
 		</div>
 	</div>
@@ -78,28 +87,22 @@ export default {
 	},
 	methods: {
 		
-		toggleFavorite(evt) {
-			this.$store.dispatch('set_user_choice', {
-				list_type: 'favorite',
-				media_type: 'show',
-				media_id: parseInt(this.show.id)
-			});
-		},
-		
-		toggleChecklist(evt) {
-			this.$store.dispatch('set_user_choice', {
-				list_type: 'checklist',
-				media_type: 'show',
-				media_id: parseInt(this.show.id)
+		addShowToList: function(evt) {
+			this.$store.dispatch('showModal', {
+				modalType: 'ModalListAddCreate',
+				modalProps: {
+					mediaType: 'show',
+					mediaId: parseInt(this.show.id)
+				},
 			});
 		},
 	},
 	created () {
-		console.log('Show::created');
+		//console.log('Show::created');
 		this.$store.dispatch('getFullShow', {id: this.$route.params.show_id});
 	},
 	mounted: function() {
-		console.log('Show::mounted $el: ', this.$el);
+		//console.log('Show::mounted $el: ', this.$el);
 	}
 }
 </script>

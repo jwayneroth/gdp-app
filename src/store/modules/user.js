@@ -20,16 +20,24 @@ const getters = {
 
 const mutations = {
 	
+	[types['SET_TOKEN']](state, token) {
+		state.token = token;
+	},
+	
 	[types['LOGOUT']](state) {
 		for (const key in initial_state) {
 			Vue.set(state, key, initial_state[key]);
 		}
 	},
 	
-	[types['SET_AUTH']](state, {user}) {
+	[types['SET_USER']](state, user) {
+		
+		const {id, username, is_admin} = user;
 		
 		const new_state = {
-			...user,
+			id,
+			username,
+			is_admin,
 			logged_in: true,
 		};
 		
@@ -37,56 +45,53 @@ const mutations = {
 			Vue.set(state, key, new_state[key]);
 		}
 	},
-	
-	[types['TOGGLE_USER_CHOICE']](state, {list_key, media_id}) {
-		console.log('user store::TOGGLE_USER_CHOICE', state[list_key]);
-		const idx = state[list_key].indexOf(media_id);
-		if (idx !== -1) {
-			state[list_key] = utils.sliceIndex(state[list_key], idx);
-		} else  {
-			state[list_key] = [...state[list_key], media_id];
-		}
-		console.log('updated', state[list_key]);
-	},
 }
 
 const actions = {
 	
-	/*checkAuth({commit}) {
-		const token = localStorage.getItem('token');
-		let jwt = (token) ? true : false;
-		commit(types['SET_AUTH, {jwt});
-	},*/
+	/**
+	 * if we have a token, give it to axios and test it
+	 */
+	checkToken({commit, dispatch, state}) {
+		if (state.token && state.token !== '') {
+			setAuthHeader(state.token);
+			dispatch('getUser');
+		}
+	},
+	
+	/**
+	 * get user data with token
+	 * called after login, register, resetPassword, checkToken
+	 */
+	getUser({commit, dispatch, state, rootState}) {
+		console.log('store::getUser');
+		
+		return new Promise((resolve, reject) => {
+			api.getUser()
+			.then(user => {
+				commit(types['SET_USER'], user);
+				resolve();
+			})
+			.catch(err => {
+				reject(err);
+			});
+		});
+	},
 	
 	login({commit}, payload) {
 		api.login(payload, user => {
 			setAuthHeader(user.token);
-			commit(types['SET_AUTH'], {user});
+			commit(types['SET_TOKEN'], user.token);
+			commit(types['SET_USER'], user);
 		}, err => {});
 	},
 	
 	register({commit}, payload) {
 		api.register(payload, user => {
 			setAuthHeader(user.token);
-			commit(types['SET_AUTH'], {user});
+			commit(types['SET_TOKEN'], user.token);
+			commit(types['SET_USER'], user);
 		}, err => {});
-	},
-	
-	set_user_choice({state, commit}, {list_type, media_type, media_id}) {
-		
-		let list_title = (list_type === 'checklist') ? 'checks' : 'stars';
-		
-		if (list_type === 'checklist') {
-			list_title = 'checks';
-		}
-		
-		const list_key = media_type + '_' + list_title;
-		const list = state[list_key];
-		const curr = (list.indexOf(media_id) !== -1);
-		
-		api.set_user_choice(media_type, list_type, media_id, !curr, res => {
-			commit(types['TOGGLE_USER_CHOICE'], {list_key, media_id});
-		});
 	},
 }
 
