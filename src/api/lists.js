@@ -40,9 +40,9 @@ export function getList(id) {
  * updateList
  * resolves with status (STRING) or rejects with error (STRING)
  */
-export function updateList(list) {
+export function updateList({listId, media}) {
 	return new Promise((resolve, reject) => {
-		axios.put(API_URL + '/api/lists/' + list.id, list)
+		axios.put(API_URL + '/api/lists/' + listId, {media})
 		.then((response) => {
 			console.log('api::updateList success', response.data);
 			resolve('success');
@@ -54,6 +54,22 @@ export function updateList(list) {
 	});
 }
 
+/**
+ * get lists for media item
+ */
+export function getMediaLists(type, id) {
+	return new Promise((resolve, reject) => {
+		axios.get(API_URL + '/api/lists/media/' + type + '/' + id)
+		.then((response) => {
+			console.log('api::getMediaLists success', response.data);
+			resolve(response.data);
+		})
+		.catch((err) => {
+			console.log('api::getMediaLists error', err.response.data);
+			reject(err.response.data);
+		});
+	});
+}
 
 
 

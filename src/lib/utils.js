@@ -13,7 +13,7 @@ export const sliceIndex = function(arr, idx) {
  */
 export const flattenObjectArray = function(arr, key) {
 	return arr.reduce((res, val) => {
-		if (val[key]) res.push(val.id);
+		if (val[key]) res.push(val[key]);
 		return res;
 	}, []);
 }
@@ -27,4 +27,19 @@ export const arrayToObject = (arr, key) => {
 		{},
 		...arr.map(item => ({[item[key]]: item}))
 	);
+}
+
+/**
+ * convert array of objects to array of values for <key>
+ * [{ id: 333, title: "foo", subArray: [<key>: 42}] }] => [42]
+ */
+export const flattenObjectArraySubArray = function(arr, sub, key) {
+	return arr.reduce((res, val) => {
+		if (val[sub] && val[sub].constructor === Array) {
+			val[sub].forEach(item => {
+				if (item[key]) res.push(item[key]);
+			})
+		}
+		return res;
+	}, []);
 }

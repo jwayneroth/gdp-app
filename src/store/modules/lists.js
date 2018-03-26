@@ -6,9 +6,12 @@ import * as api from '../../api/lists';
 import {setAuthHeader} from '../../api/';
 
 const initial_state = {
-	list_ids: [],
-	lists_by_id: {},
-	active_list: {
+	ids: [],
+	byId: {},
+	showIds: [],
+	recordingIds: [],
+	trackIds: [],
+	activeList: {
 		id: null,
 		title: '',
 		tracks: [],
@@ -24,20 +27,31 @@ const getters = {
 const mutations = {
 	
 	[types['SET_USER']](state, user) {
-		state.list_ids = utils.flattenObjectArray(user.Lists, 'id');
-		state.lists_by_id = utils.arrayToObject(user.Lists, 'id');
+		state.ids = utils.flattenObjectArray(user.Lists, 'id');
+		state.byId = utils.arrayToObject(user.Lists, 'id');
+		state.showIds = utils.flattenObjectArraySubArray(user.Lists, 'Shows', 'id');
+		state.recordingIds = utils.flattenObjectArraySubArray(user.Lists, 'Recordings', 'id');
+		state.trackIds = utils.flattenObjectArraySubArray(user.Lists, 'Tracks', 'id');
 	},
 	
 	[types['LOGOUT']](state) {
-		state.list_ids = [];
-		state.lists_by_id = {},
-		state.active_list = initial_state.active_list;
+		state.ids = [];
+		state.byId = {};
+		state.showIds = [];
+		state.recordingIds = [];
+		state.trackIds - [];
+		state.activeList = initial_state.active_list;
 	},
 	
-	[types['ADD_LIST']](state, list) {
+	[types['ADD_LIST']](state, {list, media}) {
 		const {id, title} = list;
-		state.list_ids.push(id);
-		state.lists_by_id[id] = {id, title};
+		state.ids.push(id);
+		state.byId[id] = {id, title};
+		if (media.hasOwnProperty('type')) state[media.type + "Ids"].push(media.id);
+	},
+	
+	[types['UPDATE_MEDIA']](state, {media}) {
+		if (media.hasOwnProperty('type')) state[media.type + "Ids"].push(media.id);
 	},
 	
 	/*[types['TOGGLE_USER_CHOICE']](state, {list_key, media_id}) {
@@ -54,11 +68,17 @@ const mutations = {
 
 const actions = {
 	
+	/**
+	 * create a new list for the user
+	 * pass media type and id to add to new list
+	 * vals = {title: "foo", media: {type: "track", id: 45}};
+	 */
 	createList({commit}, vals) {
 		return new Promise((resolve, reject) => {
 			api.saveNewList(vals)
 				.then(list => {
-					commit(types['ADD_LIST'], list);
+					const {media} = vals;
+					commit(types['ADD_LIST'], {list, media});
 					resolve();
 				})
 				.catch(err => {
@@ -67,18 +87,39 @@ const actions = {
 		});
 	},
 	
+	/**
+	 * add a media item to a list or lists
+	 * pass array of list ids and media type and id to add to the list
+	 * vals = {listIds: [], media: {type: "track", id: 45}};
+	 */
+	addMediaToList({commit}, {listIds, media}) {
+		
+		const promises = [];
+		
+		listIds.forEach(listId => {
+			promises.push(api.updateList({listId, media}))
+		});
+		
+		return new Promise((resolve, reject) => {
+			Promise.all(promises)
+			.then((res) => {
+				commit(types['UPDATE_MEDIA'], {media});
+				resolve();
+			})
+			.catch(err => {
+				reject(err);
+			});
+		});
+	},
+	
 	/*set_user_choice({state, commit}, {list_type, media_type, media_id}) {
-		
 		let list_title = (list_type === 'checklist') ? 'checks' : 'stars';
-		
 		if (list_type === 'checklist') {
 			list_title = 'checks';
 		}
-		
 		const list_key = media_type + '_' + list_title;
 		const list = state[list_key];
 		const curr = (list.indexOf(media_id) !== -1);
-		
 		api.set_user_choice(media_type, list_type, media_id, !curr, res => {
 			commit(types['TOGGLE_USER_CHOICE'], {list_key, media_id});
 		});

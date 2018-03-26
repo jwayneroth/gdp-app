@@ -7,7 +7,7 @@
 				<checklist-checkbox
 					:name="'check-show-' + data.item.id"
 					:data-id="data.item.id"
-					:initChecked="data.item.is_checked"
+					:initChecked="data.item.inList"
 					:onClickCallback="addShowToList"
 					v-b-tooltip.hover title="save show to a list"
 				/>
@@ -31,7 +31,8 @@ export default {
 	computed: {
 		...mapState({
 			user: 'user',
-			shows: state => state.shows.shows,
+			showsForYear: state => state.shows.shows,
+			listShows: state => state.lists.showIds,
 			//show_stars: state => state.user.show_stars,
 			//show_checks: state => state.user.show_checks,
 		}),
@@ -61,6 +62,15 @@ export default {
 			}
 			return shows;
 		},*/
+		shows: function() {
+			let shows = this.showsForYear.slice();
+			if (this.user.logged_in) {
+				shows.forEach((val) => {
+					val.inList = (this.listShows.indexOf(val.id) !== -1);
+				});
+			}
+			return shows;
+		},
 	},
 	watch: {
 		'$route.params.year': function (year) {
