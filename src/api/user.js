@@ -52,18 +52,3 @@ export function getUser() {
 		});
 	});
 }
-
-
-export function set_user_choice(media, list, media_id, val, cb) {
-	
-	const endpoint = API_URL + '/users/choice/' + media + '/' + list + '/' + media_id;
-	
-	axios.post(endpoint, {val})
-	.then((response) => {
-		cb(response.data);
-	})
-	.catch((err) => {
-		console.log('api::set_user_choice error', err); //.response.data);
-	});
-}
-

@@ -12,6 +12,7 @@ const initial_state = {
 	logged_in: false,
 	is_admin: false,
 	token: null,
+	registered: null,
 }
 
 const getters = {
@@ -39,6 +40,7 @@ const mutations = {
 			username,
 			is_admin,
 			logged_in: true,
+			registered: user.createdAt,
 		};
 		
 		for (const key in new_state) {
@@ -78,19 +80,19 @@ const actions = {
 		});
 	},
 	
-	login({commit}, payload) {
-		api.login(payload, user => {
-			setAuthHeader(user.token);
-			commit(types['SET_TOKEN'], user.token);
-			commit(types['SET_USER'], user);
+	login({commit, dispatch}, payload) {
+		api.login(payload, token => {
+			setAuthHeader(token);
+			commit(types['SET_TOKEN'], token);
+			dispatch('getUser');
 		}, err => {});
 	},
 	
-	register({commit}, payload) {
-		api.register(payload, user => {
-			setAuthHeader(user.token);
-			commit(types['SET_TOKEN'], user.token);
-			commit(types['SET_USER'], user);
+	register({commit, dispatch}, payload) {
+		api.register(payload, token => {
+			setAuthHeader(token);
+			commit(types['SET_TOKEN'], token);
+			dispatch('getUser');
 		}, err => {});
 	},
 }

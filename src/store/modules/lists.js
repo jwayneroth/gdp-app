@@ -5,6 +5,24 @@ import * as utils from '../../lib/utils';
 import * as api from '../../api/lists';
 import {setAuthHeader} from '../../api/';
 
+const parseListData = function(arr) {
+	return Object.assign(
+		{},
+		...arr.map(item => {
+			console.log(item);
+			return {
+				[item['id']]: {
+					id: item.id,
+					title: item.title,
+					shows: utils.flattenObjectArray(item.Shows, 'id'),
+					recordings: utils.flattenObjectArray(item.Recordings, 'id'),
+					tracks: utils.flattenObjectArray(item.Tracks, 'id'),
+				}
+			}
+		})
+	);
+}
+
 const initial_state = {
 	ids: [],
 	byId: {},
@@ -28,10 +46,36 @@ const mutations = {
 	
 	[types['SET_USER']](state, user) {
 		state.ids = utils.flattenObjectArray(user.Lists, 'id');
-		state.byId = utils.arrayToObject(user.Lists, 'id');
+		state.byId = parseListData(user.Lists);
 		state.showIds = utils.flattenObjectArraySubArray(user.Lists, 'Shows', 'id');
 		state.recordingIds = utils.flattenObjectArraySubArray(user.Lists, 'Recordings', 'id');
 		state.trackIds = utils.flattenObjectArraySubArray(user.Lists, 'Tracks', 'id');
+	},
+	
+	[types['ADD_LIST']](state, {list, media}) {
+		const {id, title} = list;
+		const newList = {
+			id,
+			title,
+			shows: [],
+			recordings: [],
+			tracks: []
+		};
+		if (media.hasOwnProperty('type')) {
+			state[media.type + "Ids"].push(media.id);
+			newList[media.type + "s"].push(media.id);
+		}
+		state.ids.push(id);
+		state.byId[id] = newList;
+	},
+	
+	[types['UPDATE_MEDIA']](state, {listIds, media}) {
+		if (media.hasOwnProperty('type')) {
+			state[media.type + "Ids"].push(media.id);
+			listIds.forEach(listId => {
+				state.byId[listId][media.type + "s"].push(media.id);
+			});
+		}
 	},
 	
 	[types['LOGOUT']](state) {
@@ -39,31 +83,9 @@ const mutations = {
 		state.byId = {};
 		state.showIds = [];
 		state.recordingIds = [];
-		state.trackIds - [];
-		state.activeList = initial_state.active_list;
+		state.trackIds = [];
+		state.activeList = initial_state.activeList;
 	},
-	
-	[types['ADD_LIST']](state, {list, media}) {
-		const {id, title} = list;
-		state.ids.push(id);
-		state.byId[id] = {id, title};
-		if (media.hasOwnProperty('type')) state[media.type + "Ids"].push(media.id);
-	},
-	
-	[types['UPDATE_MEDIA']](state, {media}) {
-		if (media.hasOwnProperty('type')) state[media.type + "Ids"].push(media.id);
-	},
-	
-	/*[types['TOGGLE_USER_CHOICE']](state, {list_key, media_id}) {
-		console.log('user store::TOGGLE_USER_CHOICE', state[list_key]);
-		const idx = state[list_key].indexOf(media_id);
-		if (idx !== -1) {
-			state[list_key] = utils.sliceIndex(state[list_key], idx);
-		} else  {
-			state[list_key] = [...state[list_key], media_id];
-		}
-		console.log('updated', state[list_key]);
-	},*/
 }
 
 const actions = {
@@ -103,7 +125,7 @@ const actions = {
 		return new Promise((resolve, reject) => {
 			Promise.all(promises)
 			.then((res) => {
-				commit(types['UPDATE_MEDIA'], {media});
+				commit(types['UPDATE_MEDIA'], {listIds, media});
 				resolve();
 			})
 			.catch(err => {

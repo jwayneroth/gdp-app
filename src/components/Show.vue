@@ -2,14 +2,19 @@
 	<div class="recordings">
 		<div class="d-flex align-items-end">
 			<div class="mr-auto">
-				<router-link v-if="show" :to="'/years/' + show.year">back to {{show.year}}</router-link>
+				<router-link
+					v-if="show"
+					:to="'/years/' + show.year"
+				>
+				back to {{show.year}}
+				</router-link>
 			</div>
-			<div v-if="user.logged_in" class="mr-5">
+			<div v-if="loggedIn" class="mr-5">
 				<div v-if="show">
 					<checklist-checkbox
 						:name="'check-show-' + show.id"
 						:data-id="show.id"
-						:initChecked="show.is_checked"
+						:initChecked="show.inList"
 						:onClickCallback="addShowToList"
 						v-b-tooltip.hover title="save show to a list"
 					/>
@@ -17,16 +22,26 @@
 			</div>
 		</div>
 		<div v-for="(val, idx) in recordings">
-			<recording v-if="idx === 0" :recording="val" :idx="idx" :start-open="true" :is_checked="val.is_checked" :is_favorite="val.is_favorite" />
+			<recording
+				v-if="idx === 0"
+				:recording="val"
+				:idx="idx"
+				:start-open="true"
+				:in-list="val.inList"
+			/>
 			<div v-else class="mb-2">
-				<h3 v-if="idx === 1" class="my-2">{{recordings.length - 1}} additional recordings</h3>
+				<h3
+					v-if="idx === 1"
+					class="my-2"
+				>
+				{{recordings.length - 1}} additional recordings
+				</h3>
 				<hr/>
 				<recording
 					:recording="val"
 					:idx="idx"
 					:start-open="false"
-					:is_checked="val.is_checked"
-					:is_favorite="val.is_favorite"
+					:in-list="val.inList"
 				/>
 			</div>
 		</div>
@@ -46,44 +61,32 @@ export default {
 		FavoriteCheckbox,
 		Recording
 	},
-	data: function () {
-		return {}
-	},
 	computed: {
+		
 		...mapState({
-			user: 'user',
-			show: state => state.shows.show,
-			recordings: state => (state.shows.show) ? state.shows.show.Recordings : [],
-			//recording_stars: state => state.user.recording_stars,
-			//recording_checks: state => state.user.recording_checks,
-			//show_stars: state => state.user.show_stars,
-			//show_checks: state => state.user.show_checks,
+			
+			loggedIn: state => state.user.logged_in,
+			
+			show: state => {
+				if (!state.shows.show) return null;
+				const s = Object.assign({}, state.shows.show);
+				if (state.user.logged_in) {
+					s.inList = (state.lists.showIds.indexOf(s.id) !== -1);
+				}
+				return s;
+			},
+			
+			recordings: state => {
+				if (!state.shows.show) return [];
+				let recs = state.shows.show.Recordings.slice();
+				if (state.user.logged_in) {
+					recs.forEach((rec) => {
+						rec.inList = (state.lists.recordingIds.indexOf(rec.id) !== -1);
+					});
+				}
+				return recs;
+			},
 		}),
-		/*show: function() {
-			if (!this.activeShow) return null;
-			let s = {
-				id: this.activeShow.id,
-				toggleFavorite: this.toggleFavorite,
-				toggleChecklist: this.toggleChecklist
-			};
-			if (this.user.logged_in) {
-				s.is_favorite = (this.show_stars.indexOf(this.activeShow.id) !== -1);
-				s.is_checked = (this.show_checks.indexOf(this.activeShow.id) !== -1);
-			}
-			return s;
-		},*/
-		/*recordings: function() {
-			let recs = this.showRecordings.slice();
-			// add favorite and checked props from user onto shows
-			if (this.user.logged_in) {
-				recs.forEach((val) => {
-					val.is_favorite = (this.recording_stars.indexOf(val.id) !== -1);
-					val.is_checked = (this.recording_checks.indexOf(val.id) !== -1);
-				});
-			}
-			console.log('Show::get recordings', recs);
-			return recs;
-		},*/
 	},
 	methods: {
 		
@@ -98,12 +101,8 @@ export default {
 		},
 	},
 	created () {
-		//console.log('Show::created');
 		this.$store.dispatch('getFullShow', {id: this.$route.params.show_id});
 	},
-	mounted: function() {
-		//console.log('Show::mounted $el: ', this.$el);
-	}
 }
 </script>
 

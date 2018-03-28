@@ -17,13 +17,15 @@
 </template>
 
 <script>
-import { mapState, mapGetters, mapActions } from 'vuex';
+import { mapState } from 'vuex';
 
 import ChecklistCheckbox from './ChecklistCheckbox';
-import FavoriteCheckbox from './FavoriteCheckbox';
 
 export default {
-	components: {ChecklistCheckbox, FavoriteCheckbox},
+	name: 'year',
+	components: {
+		ChecklistCheckbox
+	},
 	data: function() {
 		return {
 		}
@@ -31,11 +33,18 @@ export default {
 	computed: {
 		...mapState({
 			user: 'user',
-			showsForYear: state => state.shows.shows,
-			listShows: state => state.lists.showIds,
-			//show_stars: state => state.user.show_stars,
-			//show_checks: state => state.user.show_checks,
+			shows: state => {
+				let shows = state.shows.shows.slice();
+				if (state.user.logged_in) {
+					shows.forEach((val) => {
+						val.inList = (state.lists.showIds.indexOf(val.id) !== -1);
+					});
+				}
+				return shows;
+			},
+			//listShows: state => state.lists.showIds,
 		}),
+		
 		fields: function() {
 			let arr = [
 				{ key: 'date', label: 'date', formatter: 'displayDate', sortable: true},
@@ -45,31 +54,8 @@ export default {
 				{ key: 'average_rating', label: '~rating', formatter: v => parseInt(v, 10), sortable: true},
 				{ key: 'has_soundboard', label: 'sbd', formatter: v => (v) ? '<span class="fa fa-check"></span>' : ''},
 			];
-			//if (this.user.logged_in) arr.push({ key: 'checklist', label: 'list'}, { key: 'favorite', label: 'star'},);
 			if (this.user.logged_in) arr.push({ key: 'list', label: 'list'});
 			return arr;
-		},
-		/**
-		 * add favorite and checked props from user onto shows
-		 */
-		/*shows: function() {
-			let shows = this.showsForYear.slice();
-			if (this.user.logged_in) {
-				shows.forEach((val) => {
-					val.is_favorite = (this.show_stars.indexOf(val.id) !== -1);
-					val.is_checked = (this.show_checks.indexOf(val.id) !== -1);
-				});
-			}
-			return shows;
-		},*/
-		shows: function() {
-			let shows = this.showsForYear.slice();
-			if (this.user.logged_in) {
-				shows.forEach((val) => {
-					val.inList = (this.listShows.indexOf(val.id) !== -1);
-				});
-			}
-			return shows;
 		},
 	},
 	watch: {

@@ -4,29 +4,13 @@
 			<h3>{{recording.title}}</h3>
 			<div class="d-flex align-items-end mt-1 mb-2">
 				<div>rating: {{recording.average_rating}} / {{recording.reviews_count}} reviews</div>
-				<div v-if="user.logged_in" class="mx-4" v-b-tooltip.hover title="save recording to a list">
+				<div v-if="loggedIn" class="mx-4" v-b-tooltip.hover title="save recording to a list">
 					<checklist-checkbox
 						:name="'check-recording-' + recording.id"
-						:initChecked="is_checked"
+						:initChecked="inList"
 						:onClickCallback="addRecordingToList"
 					/>
 				</div>
-				<!--
-				<div v-if="user.logged_in" class="mx-4" v-b-tooltip.hover title="add recording to checklist">
-					<checklist-checkbox
-						:name="'check-recording-' + recording.id"
-						:initChecked="is_checked"
-						:onClickCallback="toggleRecordingChecklist"
-					/>
-				</div>
-				<div v-if="user.logged_in" v-b-tooltip.hover title="favorite this recording">
-					<favorite-checkbox
-						:name="'favorite-recording-' + recording.id"
-						:initChecked="is_favorite"
-						:onClickCallback="toggleRecordingFavorite"
-					/>
-				</div>
-				-->
 			</div>
 			<div class="d-flex justify-content-between mb-3">
 				<div class="">
@@ -83,11 +67,7 @@
 					<thead>
 						<tr>
 							<th>title</th><th></th><th>length</th><th>add</th>
-							<th v-if="user.logged_in">save</th>
-							<!--
-							<th v-if="user.logged_in">checklist</th>
-							<th v-if="user.logged_in">favorite</th>
-							-->
+							<th v-if="loggedIn">save</th>
 						</tr>
 					</thead>
 					<draggable
@@ -109,17 +89,15 @@
 									<span class="fa fa-plus"></span>
 								</b-btn>
 							</td>
-							<td v-if="user.logged_in">
-								<checklist-checkbox :name="'check-track-' + t.id" :data-id="t.id" :initChecked="t.is_checked" :onClickCallback="addTrackToList" v-b-tooltip.hover title="save track to a list" />
+							<td v-if="loggedIn">
+								<checklist-checkbox
+									:name="'check-track-' + t.id"
+									:data-id="t.id"
+									:initChecked="t.inList"
+									:onClickCallback="addTrackToList"
+									v-b-tooltip.hover title="save track to a list"
+								/>
 							</td>
-							<!--
-							<td v-if="user.logged_in">
-								<checklist-checkbox :name="'check-track-' + t.id" :data-id="t.id" :initChecked="t.is_checked" :onClickCallback="toggleChecklist" />
-							</td>
-							<td v-if="user.logged_in">
-								<favorite-checkbox :name="'favorite-track-' + t.id" :data-id="t.id" :initChecked="t.is_favorite" :onClickCallback="toggleFavorite" />
-							</td>
-							-->
 						</tr>
 					</draggable>
 				</table>
@@ -136,35 +114,37 @@ import ChecklistCheckbox from './ChecklistCheckbox';
 import FavoriteCheckbox from './FavoriteCheckbox';
 
 export default {
-	props: ['recording', 'idx', 'startOpen', 'is_checked', 'is_favorite'],
+	props: [
+		'recording',
+		'idx',
+		'startOpen',
+		'inList'
+	],
 	components: {
 		draggable,
 		ChecklistCheckbox,
 		FavoriteCheckbox,
 	},
-	data: function () {
-		return {
-		}
-	},
 	computed: {
+		
 		...mapState({
-			user: 'user',
-			//track_stars: state => state.user.track_stars,
-			//track_checks: state => state.user.track_checks,
+			
+			loggedIn: state => state.user.logged_in,
+			
+			listTracks: state => state.lists.trackIds,
 		}),
+		
 		tracks: {
-			// add favorite and checked props from user onto tracks
 			get() {
-				/*if (this.user.logged_in) {
-					this.recording.Tracks.forEach((val) => {
-						val.is_favorite = (this.track_stars.indexOf(val.id) !== -1);
-						val.is_checked = (this.track_checks.indexOf(val.id) !== -1);
+				if (this.loggedIn) {
+					this.recording.Tracks.forEach((t) => {
+						t.inList = (this.listTracks.indexOf(t.id) !== -1);
 					});
-				}*/
+				}
 				return this.recording.Tracks;
 			},
-			// do nothing
 			set(val) {
+				// do nothing
 			},
 		},
 	},
@@ -187,7 +167,6 @@ export default {
 		
 		// prevent adding duplicate to playlist
 		onDragMove: function (evt) {
-			//console.log('onDragMove', evt);
 			const track_id = evt.draggedContext.element.id;
 			if (this.$store.state.playlist.tracks_by_id.hasOwnProperty(track_id)) return false;
 		},

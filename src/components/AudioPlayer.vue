@@ -28,14 +28,16 @@
 				v-model="tracks"
 				:element="'tbody'"
 				:class="playlistClass"
-				:options="{
-					group: 'tracks',
-					handle: '.handle'
-				}"
+				:options="{group: 'tracks',handle: '.handle'}"
 				@start="drag=true"
 				@end="drag=false"
-				:move="onDragMove">
-				<tr v-for="(t, idx) in tracks" :class="[(currentTrack && t.id === currentTrack.id) ? 'active' : '', 'track']">
+				:move="onDragMove"
+			>
+				<tr
+					v-for="(t, idx) in tracks"
+					class="track"
+					:class="(currentTrack && t.id === currentTrack.id) && 'active'"
+				>
 					<td>
 						<audio v-if="shouldPreload(idx)" preload="auto" :src="t.file" style="display:none;" @canplaythrough="onAudioLoaded(t)" />
 						<span class="title" v-on:click="onTrackClick(t)">{{t.title}}</span>
@@ -47,14 +49,15 @@
 							<span class="fa fa-minus"></span>
 						</b-btn>
 					</td>
-					<!--
-					<td v-if="user.logged_in">
-						<checklist-checkbox :name="'check-track-' + t.id" :data-id="t.id" :initChecked="t.is_checked" :onClickCallback="toggleChecklist" />
+					<td v-if="loggedIn">
+						<checklist-checkbox
+							:name="'check-track-' + t.id"
+							:data-id="t.id"
+							:initChecked="t.inList"
+							:onClickCallback="addTrackToList"
+							v-b-tooltip.hover title="save track to a list"
+						/>
 					</td>
-					<td v-if="user.logged_in">
-						<favorite-checkbox :name="'favorite-track-' + t.id" :data-id="t.id" :initChecked="t.is_favorite" :onClickCallback="toggleFavorite" />
-					</td>
-					-->
 				</tr>
 			</draggable>
 		</table>
@@ -88,11 +91,10 @@ export default {
 	computed: {
 		
 		...mapState({
-			user: 'user',
-			track_stars: state => state.user.track_stars,
-			track_checks: state => state.user.track_checks,
+			loggedIn: state => state.user.logged_in,
 			track_ids: state => state.playlist.track_ids,
 			tracks_by_id: state => state.playlist.tracks_by_id,
+			listTracks: state => state.lists.trackIds,
 		}),
 		
 		currentTitle: function() { return (this.currentTrack) ? this.currentTrack.title : null },
@@ -115,13 +117,13 @@ export default {
 		
 		tracks: {
 			get() {
-				let tracks = this.track_ids.map((t) => Object.assign({},this.tracks_by_id[t]));
-				/*if (this.user.logged_in) {
-					tracks.forEach((val) => {
-						val.is_favorite = (this.track_stars.indexOf(val.id) !== -1);
-						val.is_checked = (this.track_checks.indexOf(val.id) !== -1);
+				const tracks = this.track_ids.map((t) => Object.assign({},this.tracks_by_id[t]));
+				if (this.loggedIn) {
+					tracks.forEach((t) => {
+						t.inList = (this.listTracks.indexOf(t.id) !== -1);
 					});
-				}*/
+					console.log('tracks with list check', tracks);
+				}
 				return tracks;
 			},
 			set(val) {
@@ -220,19 +222,13 @@ export default {
 			if (evt.to.id !== 'playlist') return false;
 		},
 		
-		toggleFavorite(evt) {
-			this.$store.dispatch('set_user_choice', {
-				list_type: 'favorite',
-				media_type: 'track',
-				media_id: parseInt(evt.target.getAttribute('data-id'))
-			});
-		},
-		
-		toggleChecklist(evt) {
-			this.$store.dispatch('set_user_choice', {
-				list_type: 'checklist',
-				media_type: 'track',
-				media_id: parseInt(evt.target.getAttribute('data-id'))
+		addTrackToList: function(evt) {
+			this.$store.dispatch('showModal', {
+				modalType: 'ModalListAddCreate',
+				modalProps: {
+					mediaType: 'track',
+					mediaId: parseInt(evt.target.getAttribute('data-id'))
+				},
 			});
 		},
 		
