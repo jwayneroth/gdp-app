@@ -18,19 +18,33 @@ export function saveNewList(vals) {
 	});
 }
 
-/**
- * getList
- * resolves with list (OBJECT) or rejects with error (STRING)
- */
-export function getList(id) {
+export function deleteList(id) {
 	return new Promise((resolve, reject) => {
-		axios.get(API_URL + '/api/lists/' + id)
+		axios.post(API_URL + '/api/lists/delete/' + id)
 		.then((response) => {
-			console.log('api::getList success', response.data);
+			console.log('api::deleteList success', response.data);
 			resolve(response.data);
 		})
 		.catch((err) => {
-			console.log('api::getList error', err.response.data);
+			console.log('api::deleteList error', err.response.data);
+			reject(err.response.data);
+		});
+	});
+}
+
+/**
+ * get complete List Object with related shows, recordings, track teasers
+ * resolves with list (OBJECT) or rejects with error (STRING)
+ */
+export function getFullList(id) {
+	return new Promise((resolve, reject) => {
+		axios.get(API_URL + '/api/lists/' + id)
+		.then((response) => {
+			console.log('api::getFullList success', response.data);
+			resolve(response.data);
+		})
+		.catch((err) => {
+			console.log('api::getFullList error', err.response.data);
 			reject(err.response.data);
 		});
 	});
@@ -66,6 +80,20 @@ export function getMediaLists(type, id) {
 		})
 		.catch((err) => {
 			console.log('api::getMediaLists error', err.response.data);
+			reject(err.response.data);
+		});
+	});
+}
+
+export function renameList({id, title}) {
+	return new Promise((resolve, reject) => {
+		axios.put(API_URL + '/api/lists/' + id, {title})
+		.then((response) => {
+			console.log('api::renameList success', response.data);
+			resolve('success');
+		})
+		.catch((err) => {
+			console.log('api::renameList error', err.response.data);
 			reject(err.response.data);
 		});
 	});

@@ -1,7 +1,7 @@
 <template>
 	<div class="year" ref="year">
 		<h3 class="pane-title">{{$route.params.year}}</h3>
-		<router-link class="d-block mb-2" to="/">back to years</router-link>
+		<breadcrumb/>
 		<b-table ref="shows_table" :fields="fields" :items="shows" @row-clicked="rowClick">
 			<template slot="list" slot-scope="data">
 				<checklist-checkbox
@@ -19,12 +19,14 @@
 <script>
 import { mapState } from 'vuex';
 
+import Breadcrumb from './Breadcrumb.vue';
 import ChecklistCheckbox from './ChecklistCheckbox';
 
 export default {
 	name: 'year',
 	components: {
-		ChecklistCheckbox
+		ChecklistCheckbox,
+		Breadcrumb,
 	},
 	data: function() {
 		return {

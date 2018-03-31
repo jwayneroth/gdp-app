@@ -8,6 +8,7 @@ import { mapState } from 'vuex';
 export default {
 	data: function() {
 		return {
+			text: 'back',
 		}
 	},
 	computed: {
@@ -16,10 +17,10 @@ export default {
 			filter: state => state.shows.filter,
 			filterVals: state => state.shows.filterVals,
 		}),
-		text: function() {
+		/*text: function() {
 			const filterText = (this.filter) ? ' to ' + this.filter : '';
 			return 'back' + filterText;
-		}
+		}*/
 	},
 	watch: {
 		/*'$route.params.year': function (year) {

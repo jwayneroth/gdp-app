@@ -1,5 +1,5 @@
 <template>
-	<div id="form-list" class="modal-content">
+	<div class="modal-content">
 		<header class="modal-header">
 			<h3>Add {{typeLabel}} to...</h3>
 			<b-button variant="primary" @click="() => {$store.dispatch('hideModal')}">close</b-button>
@@ -51,7 +51,6 @@ export default {
 		return {
 			formValues: {
 				newTitle: null,
-				//existingId: null,
 				existingSelected: [],
 			},
 			error: '',

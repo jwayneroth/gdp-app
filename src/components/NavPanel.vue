@@ -9,7 +9,7 @@
 					<div class="row">
 						<div class="col-sm-8 offset-sm-2">
 							<h2>About</h2>
-							<p>Grateful Dead Portal is an index and online player for Grateful Dead recordings available on the <a href="https://archive.org/" target="_blank">Internet Archive</a>.<br>Users are invited to build a playlist from among the navigable shows, with the option of creating an account in order to save shows, recordings, and individual tracks as favorites or in a checklist.<br><i>The site is a work in progress</i>.<br>More info may be found <a href="https://jonathanwayneroth.com">here</a>.</p>
+							<p>Grateful Dead Portal is an index and online player of Grateful Dead recordings available on the <a href="https://archive.org/" target="_blank">Internet Archive</a>.<br>Users are invited to build a playlist from among the navigable shows, with the option of creating an account in order to save shows, recordings, and individual tracks onto custom lists.<br><i>The site is a work in progress</i>.<br>More info may be found <a href="https://jonathanwayneroth.com">here</a>.</p>
 						</div>
 					</div>
 				</div>

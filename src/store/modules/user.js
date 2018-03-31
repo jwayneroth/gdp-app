@@ -63,9 +63,9 @@ const actions = {
 	
 	/**
 	 * get user data with token
-	 * called after login, register, resetPassword, checkToken
+	 * called after login, register, resetPassword, checkToken, deleteList
 	 */
-	getUser({commit, dispatch, state, rootState}) {
+	getUser({commit}) {
 		console.log('store::getUser');
 		
 		return new Promise((resolve, reject) => {

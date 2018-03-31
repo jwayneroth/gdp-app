@@ -25,7 +25,9 @@
 		</header>
 		<main id="main" ref="main" :style="styles.main">
 			<resizable-panel left_name="Library" right_name="Player">
-				<router-view slot="left-pane"></router-view>
+				<div slot="left-pane">
+					<router-view></router-view>
+				</div>
 				<audio-player slot="right-pane"></audio-player>
 			</resizable-panel>
 		</main>

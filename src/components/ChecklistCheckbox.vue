@@ -1,7 +1,7 @@
 <template>
 	<div :class="[initChecked && 'checked', 'checklist-checkbox']">
 		<label>
-			<input type="checkbox" :name="name" :data-id="dataId" :checked="initChecked" v-on:click="onClickCallback">
+			<input type="checkbox" :name="name" :data-id="dataId" :checked="initChecked" @click.stop="onClickCallback">
 			{{label && label}}
 		</label>
 	</div>

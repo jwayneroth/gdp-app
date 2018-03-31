@@ -79,7 +79,8 @@
 						}"
 						@start="drag=true"
 						@end="drag=false"
-						:move="onDragMove">
+						:move="onDragMove"
+					>
 						<tr v-for="(t, idx) in recording.Tracks">
 							<td><span>{{t.title}}</span></td>
 							<td class="handle"><span class="fa fa-arrows"></span></td>

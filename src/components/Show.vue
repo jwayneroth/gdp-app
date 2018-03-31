@@ -2,12 +2,7 @@
 	<div class="recordings">
 		<div class="d-flex align-items-end">
 			<div class="mr-auto">
-				<router-link
-					v-if="show"
-					:to="'/years/' + show.year"
-				>
-				back to {{show.year}}
-				</router-link>
+				<breadcrumb/>
 			</div>
 			<div v-if="loggedIn" class="mr-5">
 				<div v-if="show">
@@ -53,13 +48,15 @@ import {mapState, mapGetters, mapActions} from 'vuex';
 
 import ChecklistCheckbox from './ChecklistCheckbox';
 import FavoriteCheckbox from './FavoriteCheckbox';
-import Recording from './Recording.vue';
+import Recording from './Recording';
+import Breadcrumb from './Breadcrumb';
 
 export default {
 	components: {
 		ChecklistCheckbox,
 		FavoriteCheckbox,
-		Recording
+		Recording,
+		Breadcrumb,
 	},
 	computed: {
 		

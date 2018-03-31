@@ -18,7 +18,8 @@ const actions = {
 
 // mutations
 const mutations = {
-	[types.ADD_TRACKS](state, {tracks}) {
+	
+	[types['ADD_TRACKS']](state, {tracks}) {
 		let new_tracks = {},
 			new_ids = [];
 		
@@ -41,14 +42,14 @@ const mutations = {
 		);
 	},
 	
-	[types.REMOVE_TRACK](state, {track_id}) {
+	[types['REMOVE_TRACK']](state, {track_id}) {
 		
 		state.track_ids.splice(state.track_ids.indexOf(track_id), 1)
 		
 		delete state.tracks_by_id[track_id];
 	},
 	
-	[types.UPDATE_PLAYLIST](state, {tracks}) {
+	[types['UPDATE_PLAYLIST']](state, {tracks}) {
 		let new_tracks = {},
 			new_ids = [];
 			
@@ -61,7 +62,7 @@ const mutations = {
 		state.track_ids = new_ids;
 	},
 	
-	[types.EMPTY_PLAYLIST](state) {
+	[types['EMPTY_PLAYLIST']](state) {
 		state.tracks_by_id = {};
 		state.track_ids = [];
 	},

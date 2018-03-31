@@ -12,7 +12,7 @@ import YearList from './YearList.vue';
 
 export default {
 	components: {
-		YearList
+		YearList,
 	},
 }
 </script>

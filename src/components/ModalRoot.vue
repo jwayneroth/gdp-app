@@ -20,13 +20,17 @@
 import {mapState} from 'vuex';
 
 import HcModal from './HcModal';
-import ModalListAddCreate from './ModalListForm.vue';
+import ModalListAddCreate from './ModalListAddForm.vue';
+import ModalListRename from './ModalListRenameForm.vue';
+import ModalListDelete from './ModalListDeleteForm.vue';
 
 export default {
 	name: 'modal-root',
 	components: {
 		HcModal,
 		ModalListAddCreate,
+		ModalListRename,
+		ModalListDelete,
 	},
 	computed: {
 		

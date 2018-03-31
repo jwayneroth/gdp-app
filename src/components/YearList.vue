@@ -1,6 +1,7 @@
 <template>
 	<div id="year-list">
 		<h3 class="pane-title">Years</h3>
+		<breadcrumb/>
 		<table class="table">
 			<thead>
 				<tr><th>year</th><th>shows</th><th>recordings</th></tr>
@@ -19,7 +20,12 @@
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex'
 
+import Breadcrumb from './Breadcrumb.vue';
+
 export default {
+	components: {
+		Breadcrumb,
+	},
 	computed: {
 		...mapState({
 			user: 'user',

@@ -14,13 +14,31 @@ const parseListData = function(arr) {
 				[item['id']]: {
 					id: item.id,
 					title: item.title,
-					shows: utils.flattenObjectArray(item.Shows, 'id'),
-					recordings: utils.flattenObjectArray(item.Recordings, 'id'),
-					tracks: utils.flattenObjectArray(item.Tracks, 'id'),
+					createdAt: item.createdAt,
+					showIds: utils.flattenObjectArray(item.Shows, 'id'),
+					recordingIds: utils.flattenObjectArray(item.Recordings, 'id'),
+					trackIds: utils.flattenObjectArray(item.Tracks, 'id'),
 				}
 			}
 		})
 	);
+}
+
+const parseListTracks = function(tracks) {
+	const flat = tracks.map(t => {
+		const {id, title, file, length} = t;
+		return {
+			id,
+			title,
+			file,
+			length,
+			showId: t.Recording.Show.id,
+			recordingId: t.Recording.id,
+			recordingDate: t.Recording.date,
+			recordingTitle: t.Recording.title,
+		}
+	});
+	return utils.arrayToObject(flat, 'id');
 }
 
 const initial_state = {
@@ -32,9 +50,14 @@ const initial_state = {
 	activeList: {
 		id: null,
 		title: '',
-		tracks: [],
-		recordings: [],
-		shows: [],
+		createdAt: '',
+		isPublic: false,
+		showIds: [],
+		recordingIds: [],
+		trackIds: [],
+		showsById: {},
+		recordingsById: {},
+		tracksById: {},
 	},
 }
 
@@ -53,20 +76,42 @@ const mutations = {
 	},
 	
 	[types['ADD_LIST']](state, {list, media}) {
-		const {id, title} = list;
+		const {id, title, createdAt} = list;
 		const newList = {
 			id,
 			title,
-			shows: [],
-			recordings: [],
-			tracks: []
+			createdAt,
+			showIds: [],
+			recordingIds: [],
+			trackIds: [],
 		};
-		if (media.hasOwnProperty('type')) {
+		if (media && media.hasOwnProperty('type')) {
 			state[media.type + "Ids"].push(media.id);
-			newList[media.type + "s"].push(media.id);
+			newList[media.type + "Ids"].push(media.id);
 		}
 		state.ids.push(id);
 		state.byId[id] = newList;
+	},
+	
+	[types['ACTIVATE_LIST']](state, list) {
+		const {id, title, createdAt, isPublic} = list;
+		
+		state.activeList = {
+			id,
+			title,
+			createdAt,
+			isPublic,
+			showIds: utils.flattenObjectArray(list.Shows, 'id'),
+			recordingIds: utils.flattenObjectArray(list.Recordings, 'id'),
+			trackIds: utils.flattenObjectArray(list.Tracks, 'id'),
+			showsById: utils.arrayToObject(list.Shows, 'id'),
+			recordingsById: utils.arrayToObject(list.Recordings, 'id'),
+			tracksById: parseListTracks(list.Tracks),
+		}
+	},
+	
+	[types['DEACTIVATE_LIST']](state, list) {
+		state.activeList = initial_state.activeList;
 	},
 	
 	[types['UPDATE_MEDIA']](state, {listIds, media}) {
@@ -76,6 +121,14 @@ const mutations = {
 				state.byId[listId][media.type + "s"].push(media.id);
 			});
 		}
+	},
+	
+	[types['RENAME_LIST']](state, {id, title}) {
+		state.byId[id] = {
+			...state.byId[id],
+			title
+		};
+		if (state.activeList.id === id) state.activeList.title = title;
 	},
 	
 	[types['LOGOUT']](state) {
@@ -134,18 +187,52 @@ const actions = {
 		});
 	},
 	
-	/*set_user_choice({state, commit}, {list_type, media_type, media_id}) {
-		let list_title = (list_type === 'checklist') ? 'checks' : 'stars';
-		if (list_type === 'checklist') {
-			list_title = 'checks';
-		}
-		const list_key = media_type + '_' + list_title;
-		const list = state[list_key];
-		const curr = (list.indexOf(media_id) !== -1);
-		api.set_user_choice(media_type, list_type, media_id, !curr, res => {
-			commit(types['TOGGLE_USER_CHOICE'], {list_key, media_id});
+	getFullList({commit}, listId) {
+		console.log('store::getFullList ' + listId);
+		
+		return new Promise((resolve, reject) => {
+			api.getFullList(listId)
+			.then(list => {
+				commit(types['ACTIVATE_LIST'], list);
+				resolve();
+			})
+			.catch(err => {
+				reject(err);
+			});
 		});
-	},*/
+	},
+	
+	/**
+	 * tell api to delete our list
+	 * call getUser to update our list state
+	 * (easier/maybe only way) to update media ids
+	 */
+	deleteList({state, dispatch}, listId) {
+		return new Promise((resolve, reject) => {
+			api.deleteList(listId)
+			.then(() => {
+				if (state.activeList.id === listId) commit(types['DEACTIVATE_LIST']);
+				dispatch('getUser');
+				resolve();
+			})
+			.catch(err => {
+				reject(err);
+			});
+		});
+	},
+	
+	renameList({commit}, vals) {
+		return new Promise((resolve, reject) => {
+			api.renameList(vals)
+			.then(() => {
+				commit(types['RENAME_LIST'], vals);
+				resolve();
+			})
+			.catch(err => {
+				reject(err);
+			});
+		});
+	}
 }
 
 export default {

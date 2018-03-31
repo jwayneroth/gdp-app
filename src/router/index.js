@@ -5,7 +5,7 @@ import Home from '../components/Home';
 import Year from '../components/Year';
 import Show from '../components/Show';
 import User from '../components/User';
-import UserList from '../components/UserList';
+import List from '../components/List';
 
 Vue.use(VueRouter);
 
@@ -17,6 +17,7 @@ export default new VueRouter({
 		{path: '/years/:year', component: Year},
 		{path: '/shows/:show_id', component: Show},
 		{path: '/user', component: User},
+		{path: '/list/:id', component: List},
 		/*	children: [
 				{ path: '', component: UserHome },
 				{ path: 'checklist/track', component: UserList },

@@ -19,6 +19,9 @@ export const UPDATE_PLAYLIST = 'UPDATE_PLAYLIST';
 
 export const ADD_LIST = 'ADD_LIST';
 export const UPDATE_MEDIA = 'UPDATE_MEDIA';
+export const ACTIVATE_LIST = 'ACTIVATE_LIST';
+export const DEACTIVATE_LIST = 'DEACTIVATE_LIST';
+export const RENAME_LIST = 'RENAME_LIST';
 
 export const SHOW_MODAL = 'SHOW_MODAL';
 export const HIDE_MODAL = 'HIDE_MODAL';
