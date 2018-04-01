@@ -23,8 +23,6 @@
 					<option v-for="opt in listOptions" :key="opt.id" :val="opt.id">{{opt.title}}</option>
 				</select>-->
 				<b-form-select multiple :select-size="4" v-model="formValues.existingSelected" :options="listOptions" class="mb-3"/>
-			</div>
-			<div class="">
 				<b-button type="submit" variant="primary" v-on:click="addToExisting">Add To List</b-button>
 			</div>
 		</div>

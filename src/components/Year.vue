@@ -56,7 +56,7 @@ export default {
 				{ key: 'average_rating', label: '~rating', formatter: v => parseInt(v, 10), sortable: true},
 				{ key: 'has_soundboard', label: 'sbd', formatter: v => (v) ? '<span class="fa fa-check"></span>' : ''},
 			];
-			if (this.user.logged_in) arr.push({ key: 'list', label: 'list'});
+			if (this.user.logged_in) arr.push({ key: 'list', label: 'save'});
 			return arr;
 		},
 	},

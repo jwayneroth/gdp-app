@@ -31,6 +31,7 @@ export default {
 		confirm: function() {
 			this.$store.dispatch('deleteList', this.listId)
 			.then(() => {
+				if (this.$router.currentRoute.path === '/list/' + this.listId) this.$router.replace('/user');
 				this.$store.dispatch('hideModal');
 			})
 			.catch(err => {

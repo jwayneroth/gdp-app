@@ -110,15 +110,18 @@ const mutations = {
 		}
 	},
 	
-	[types['DEACTIVATE_LIST']](state, list) {
-		state.activeList = initial_state.activeList;
+	[types['DEACTIVATE_LIST']](state) {
+		state.activeList = {...initial_state.activeList};
 	},
 	
 	[types['UPDATE_MEDIA']](state, {listIds, media}) {
+		console.log('UPDATE_MEDIA');
+		console.log('listIds', listIds);
+		console.log('media', media);
 		if (media.hasOwnProperty('type')) {
 			state[media.type + "Ids"].push(media.id);
 			listIds.forEach(listId => {
-				state.byId[listId][media.type + "s"].push(media.id);
+				state.byId[listId][media.type + "Ids"].push(media.id);
 			});
 		}
 	},
@@ -207,7 +210,7 @@ const actions = {
 	 * call getUser to update our list state
 	 * (easier/maybe only way) to update media ids
 	 */
-	deleteList({state, dispatch}, listId) {
+	deleteList({state, commit, dispatch}, listId) {
 		return new Promise((resolve, reject) => {
 			api.deleteList(listId)
 			.then(() => {
