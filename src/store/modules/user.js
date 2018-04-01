@@ -81,19 +81,39 @@ const actions = {
 	},
 	
 	login({commit, dispatch}, payload) {
-		api.login(payload, token => {
-			setAuthHeader(token);
-			commit(types['SET_TOKEN'], token);
-			dispatch('getUser');
-		}, err => {});
+		return new Promise((resolve, reject) => {
+			api.login(payload, token => {
+				setAuthHeader(token);
+				commit(types['SET_TOKEN'], token);
+				dispatch('getUser')
+				.then(() => {
+					resolve();
+				})
+				.catch(err => {
+					reject(err);
+				});
+			}, err => {
+				reject(err);
+			});
+		});
 	},
 	
 	register({commit, dispatch}, payload) {
-		api.register(payload, token => {
-			setAuthHeader(token);
-			commit(types['SET_TOKEN'], token);
-			dispatch('getUser');
-		}, err => {});
+		return new Promise((resolve, reject) => {
+			api.register(payload, token => {
+				setAuthHeader(token);
+				commit(types['SET_TOKEN'], token);
+				dispatch('getUser')
+				.then(() => {
+					resolve();
+				})
+				.catch(err => {
+					reject(err);
+				});
+			}, err => {
+				reject(err);
+			});
+		});
 	},
 }
 

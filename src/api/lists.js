@@ -86,5 +86,17 @@ export function getMediaLists(type, id) {
 	});
 }
 
-
+export function getPublicLists() {
+	return new Promise((resolve, reject) => {
+		axios.get(API_URL + '/api/lists/public')
+		.then((response) => {
+			console.log('api::getPublicLists success', response.data);
+			resolve(response.data);
+		})
+		.catch((err) => {
+			console.log('api::getPublicLists error', err.response.data);
+			reject(err.response.data);
+		});
+	});
+}
 

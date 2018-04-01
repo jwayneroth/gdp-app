@@ -17,13 +17,21 @@
 				</div>
 			</b-card>
 		</b-collapse>
-		<b-table ref="lists-table" :fields="fields" :items="listsForTable" @row-clicked="rowClick">
-			<template slot="delete" slot-scope="data">
-				<b-btn variant="link" @click.stop="deleteListClick(data.item)">
-					<span class="fa fa-minus"></span>
-				</b-btn>
-			</template>
+		<div class="user-lists mb-4">
+			<b-table v-if="listsForTable.length" ref="lists-table" :fields="fields" :items="listsForTable" @row-clicked="rowClick">
+				<template slot="delete" slot-scope="data">
+					<b-btn variant="link" @click.stop="deleteListClick(data.item)">
+						<span class="fa fa-minus"></span>
+					</b-btn>
+				</template>
+			</b-table>
+			<p v-else>No lists yet.</p>
+		</div>
+		<div class="public-lists">
+			<h4>Public Lists</h4>
+			<b-table ref="public-lists-table" :fields="publicListFields" :items="publicLists" @row-clicked="rowClick">
 		</b-table>
+		</div>
 	</div>
 </template>
 
@@ -52,6 +60,7 @@ export default {
 			user: 'user',
 			listIds: state => state.lists.ids,
 			listsById: state => state.lists.byId,
+			publicLists: state => state.lists.publicLists,
 		}),
 		
 		registerDate: function() {
@@ -70,11 +79,21 @@ export default {
 				{ key: 'showIds', label: 'shows', formatter: v => v.length },
 				{ key: 'recordingIds', label: 'recordings', formatter: v => v.length },
 				{ key: 'trackIds', label: 'tracks', formatter: v => v.length },
-				{ key: 'createAt', label: 'created', formatter: v => moment(v).format('MM/DD/YY') },
+				{ key: 'createdAt', label: 'created', formatter: v => moment(v).format('MM/DD/YY') },
 				{ key: 'delete', label: 'delete'},
 			];
 			return arr;
 		},
+		
+		publicListFields: function() {
+			return [
+				{ key: 'title', label: 'title' },
+				//{ key: 'Shows', label: 'shows', formatter: v => v.length },
+				//{ key: 'Recordings', label: 'recordings', formatter: v => v.length },
+				//{ key: 'Tracks', label: 'tracks', formatter: v => v.length },
+				{ key: 'createdAt', label: 'created', formatter: v => moment(v).format('MM/DD/YY') },
+			];
+		}
 	},
 	methods: {
 		
@@ -123,6 +142,9 @@ export default {
 				this.error = err;
 			});
 		},
+	},
+	mounted: function() {
+		this.$store.dispatch('getPublicLists');
 	},
 }
 </script>

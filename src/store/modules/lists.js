@@ -5,6 +5,28 @@ import * as utils from '../../lib/utils';
 import * as api from '../../api/lists';
 import {setAuthHeader} from '../../api/';
 
+const initial_state = {
+	ids: [],
+	byId: {},
+	showIds: [],
+	recordingIds: [],
+	trackIds: [],
+	publicLists: [],
+	publicValid: false,
+	activeList: {
+		id: null,
+		title: '',
+		createdAt: '',
+		isPublic: false,
+		showIds: [],
+		recordingIds: [],
+		trackIds: [],
+		showsById: {},
+		recordingsById: {},
+		tracksById: {},
+	},
+}
+
 const parseListData = function(arr) {
 	return Object.assign(
 		{},
@@ -41,26 +63,6 @@ const parseListTracks = function(tracks) {
 	return utils.arrayToObject(flat, 'id');
 }
 
-const initial_state = {
-	ids: [],
-	byId: {},
-	showIds: [],
-	recordingIds: [],
-	trackIds: [],
-	activeList: {
-		id: null,
-		title: '',
-		createdAt: '',
-		isPublic: false,
-		showIds: [],
-		recordingIds: [],
-		trackIds: [],
-		showsById: {},
-		recordingsById: {},
-		tracksById: {},
-	},
-}
-
 const getters = {
 	//listIds: state => utils.flattenObjectArray(state.lists),
 }
@@ -93,33 +95,11 @@ const mutations = {
 		state.byId[id] = newList;
 	},
 	
-	[types['ACTIVATE_LIST']](state, list) {
-		const {id, title, createdAt, isPublic} = list;
-		
+	[types['UPDATE_ACTIVE_LIST']](state, list) {
 		state.activeList = {
-			id,
-			title,
-			createdAt,
-			isPublic,
-			showIds: utils.flattenObjectArray(list.Shows, 'id'),
-			recordingIds: utils.flattenObjectArray(list.Recordings, 'id'),
-			trackIds: utils.flattenObjectArray(list.Tracks, 'id'),
-			showsById: utils.arrayToObject(list.Shows, 'id'),
-			recordingsById: utils.arrayToObject(list.Recordings, 'id'),
-			tracksById: parseListTracks(list.Tracks),
+			...state.activeList,
+			...list
 		}
-	},
-	
-	[types['DEACTIVATE_LIST']](state) {
-		state.activeList = {...initial_state.activeList};
-	},
-	
-	[types['UNSET_ACTIVE_MEDIA']](state, media) {
-		console.log('UNSET_ACTIVE_MEDIA');
-		const newActive = state.activeList = {...state.activeList};
-		newActive[media.type + 'Ids'] = utils.sliceElement(newActive[media.type + 'Ids'], media.id);
-		delete newActive[media.type + 'ById'][media.id];
-		state.activeList = newActive;
 	},
 	
 	[types['UPDATE_MEDIA']](state, {listIds, media}) {
@@ -136,7 +116,18 @@ const mutations = {
 			...state.byId[listId],
 			title
 		};
-		if (state.activeList.id === listId) state.activeList.title = title;
+		if (state.activeList.id === listId) {
+			state.activeList.title = title;
+		}
+	},
+	
+	[types['PUBLIC_LISTS']](state, lists) {
+		state.publicLists = lists;
+		state.publicValid = true;
+	},
+	
+	[types['INVALIDATE_PUBLIC']](state, lists) {
+		state.publicValid = false;
 	},
 	
 	[types['LOGOUT']](state) {
@@ -197,11 +188,34 @@ const actions = {
 	
 	removeMediaFromList({state, commit, dispatch}, {listId, media}) {
 		console.log('store::removeMediaFromList', media);
+		
 		return new Promise((resolve, reject) => {
 			api.updateList(listId, {media})
 			.then(res => {
-				if (state.activeList.id === listId) commit(types['UNSET_ACTIVE_MEDIA'], media);
+				if (state.activeList.id === listId) {
+					const newActive = state.activeList = {...state.activeList};
+					
+					newActive[media.type + 'Ids'] = utils.sliceElement(newActive[media.type + 'Ids'], media.id);
+					
+					delete newActive[media.type + 'ById'][media.id];
+					
+					commit(types['UPDATE_ACTIVE_LIST'], newActive);
+				}
 				dispatch('getUser');
+				resolve();
+			})
+			.catch(err => {
+				reject(err);
+			});
+		});
+	},
+	
+	setListPublic({state, commit, dispatch}, {listId, isPublic}) {
+		return new Promise((resolve, reject) => {
+			api.updateList(listId, {isPublic})
+			.then(res => {
+				commit(types['UPDATE_ACTIVE_LIST'], {isPublic});
+				commit(types['INVALIDATE_PUBLIC']);
 				resolve();
 			})
 			.catch(err => {
@@ -216,7 +230,19 @@ const actions = {
 		return new Promise((resolve, reject) => {
 			api.getFullList(listId)
 			.then(list => {
-				commit(types['ACTIVATE_LIST'], list);
+				
+				const {id, UserId, title, createdAt, isPublic} = list;
+				
+				const activeList = {
+					id, UserId, title, createdAt, isPublic,
+					showIds: utils.flattenObjectArray(list.Shows, 'id'),
+					recordingIds: utils.flattenObjectArray(list.Recordings, 'id'),
+					trackIds: utils.flattenObjectArray(list.Tracks, 'id'),
+					showsById: utils.arrayToObject(list.Shows, 'id'),
+					recordingsById: utils.arrayToObject(list.Recordings, 'id'),
+					tracksById: parseListTracks(list.Tracks),
+				}
+				commit(types['UPDATE_ACTIVE_LIST'], activeList);
 				resolve();
 			})
 			.catch(err => {
@@ -234,7 +260,9 @@ const actions = {
 		return new Promise((resolve, reject) => {
 			api.deleteList(listId)
 			.then(() => {
-				if (state.activeList.id === listId) commit(types['DEACTIVATE_LIST']);
+				if (state.activeList.id === listId) {
+					commit(types['UPDATE_ACTIVE_LIST'], initial_state.activeList);
+				}
 				dispatch('getUser');
 				resolve();
 			})
@@ -255,7 +283,18 @@ const actions = {
 				reject(err);
 			});
 		});
-	}
+	},
+	
+	getPublicLists({state, commit}) {
+		
+		if (state.publicLists.length && state.publicValid === true) return;
+		
+		api.getPublicLists()
+		.then(lists => {
+			commit(types['PUBLIC_LISTS'], lists);
+		})
+		.catch(err => {});
+	},
 }
 
 export default {

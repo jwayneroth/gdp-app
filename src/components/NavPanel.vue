@@ -97,7 +97,11 @@ export default {
 			
 			this.error = '';
 			
-			this.$store.dispatch('login', {ctx: this, email, password});
+			this.$store.dispatch('login', {email, password})
+			.then(() => {})
+			.catch(err => {
+				this.error = err;
+			});
 		},
 		register() {
 			console.log('UserForms::register');
@@ -112,7 +116,11 @@ export default {
 			
 			this.error = '';
 			
-			this.$store.dispatch('register', {ctx: this, username, email, password});
+			this.$store.dispatch('register', {username, email, password})
+			.then(() => {})
+			.catch(err => {
+				this.error = err;
+			});
 		},
 	},
 	created: function () {

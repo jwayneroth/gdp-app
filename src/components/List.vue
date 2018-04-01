@@ -4,10 +4,14 @@
 		<div v-if="loggedIn">
 			<h2>{{list.title}}</h2>
 			<p><span class="montserratmedium">created: </span>{{createdFormatted(list.createdAt)}}</p>
-			<p>
+			<div v-if="editable" class="d-flex flex-row mb-4">
 				<button class="btn btn-link" @click="renameListClick">rename</button>
 				<button class="btn btn-link" @click="deleteListClick">delete</button>
-			</p>
+				<div v-if="isAdmin">
+					<button v-if="!list.isPublic" class="btn btn-link" @click="togglePublic">make public</button>
+					<button v-else class="btn btn-link" @click="togglePublic">make private</button>
+				</div> 
+			</div>
 			<div v-if="list.showIds.length">
 				<h4>Shows</h4>
 				<div>
@@ -44,7 +48,7 @@
 					<table class="table draggable-table">
 						<thead>
 							<tr>
-								<th>remove</th>
+								<th v-if="editable">remove</th>
 								<th>show</th>
 								<th>title</th>
 								<th></th>
@@ -64,7 +68,7 @@
 							:move="onDragMove"
 						>
 							<tr v-for="(t, idx) in tracksForTable">
-								<td>
+								<td v-if="editable">
 									<b-btn v-b-tooltip.hover title="remove track from the list" class="remove-btn" variant="link" v-on:click="onRemoveClick('track', t.id)">
 										<span class="fa fa-minus"></span>
 									</b-btn>
@@ -116,28 +120,31 @@ export default {
 	computed: {
 		
 		...mapState({
+			userId: state => state.user.id,
 			loggedIn: state => state.user.logged_in,
+			isAdmin: state => state.user.is_admin,
 			list: state => state.lists.activeList,
 		}),
 		
+		editable: function() { return (this.list.UserId === this.userId) },
 		showsForTable: function() { return this.list.showIds.map(id => this.list.showsById[id]); },
 		recordingsForTable: function() { return this.list.recordingIds.map(id => this.list.recordingsById[id]); },
 		tracksForTable: function() { return this.list.trackIds.map(id => this.list.tracksById[id]); },
 		
 		showFields: function() {
-			return [
-				{ key: 'remove', label: 'remove' },
+			const arr = [
 				{ key: 'date', label: 'date', formatter: 'displayDate', sortable: true},
 				{ key: 'title', label: 'title'},
 			];
+			if (this.editable) arr.push({ key: 'remove', label: 'remove' });
 		},
 		
 		recordingFields: function() {
-			return [
-				{ key: 'remove', label: 'remove' },
+			const arr = [
 				{ key: 'date', label: 'date', formatter: 'displayDate', sortable: true},
 				{ key: 'title', label: 'title'},
 			];
+			if (this.editable) arr.push({ key: 'remove', label: 'remove' });
 		},
 		
 		tracks: {
@@ -178,10 +185,12 @@ export default {
 			const media = {type, id, delete: true};
 			
 			this.$store.dispatch('removeMediaFromList', {listId: this.list.id, media})
-			.then(() => {
-			})
-			.catch(err => {
-			});
+			.then(() => {})
+			.catch(err => {});
+		},
+		
+		togglePublic: function() {
+			this.$store.dispatch('setListPublic', {listId: this.list.id, isPublic: !this.list.isPublic})
 		},
 		
 		onDragMove: function (evt) {

@@ -28,6 +28,10 @@ html {
 	background-color: #8f8f8f;
 }
 
+.btn:not([disabled]) {
+	cursor: pointer;
+}
+
 //////////////
 // header
 ////////////
