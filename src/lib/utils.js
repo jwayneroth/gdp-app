@@ -8,6 +8,15 @@ export const sliceIndex = function(arr, idx) {
 }
 
 /**
+ * return copy of array with el removed
+ */
+export const sliceElement = function(arr, el) {
+	const idx = arr.indexOf(el);
+	if (idx !== -1) return sliceIndex(arr, idx);
+	return arr.slice();
+}
+
+/**
  * convert array of objects to array of values for <key>
  * [{ <key>: 333, title: "foo" }] => [333]
  */

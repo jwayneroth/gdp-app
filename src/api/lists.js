@@ -51,12 +51,13 @@ export function getFullList(id) {
 }
 
 /**
- * updateList
+ * updateList - called to add media item AND/OR  set title
  * resolves with status (STRING) or rejects with error (STRING)
  */
-export function updateList({listId, media}) {
+export function updateList(listId, vals) {
+	console.log('api::updateList', vals);
 	return new Promise((resolve, reject) => {
-		axios.put(API_URL + '/api/lists/' + listId, {media})
+		axios.put(API_URL + '/api/lists/' + listId, vals)
 		.then((response) => {
 			console.log('api::updateList success', response.data);
 			resolve('success');
@@ -80,20 +81,6 @@ export function getMediaLists(type, id) {
 		})
 		.catch((err) => {
 			console.log('api::getMediaLists error', err.response.data);
-			reject(err.response.data);
-		});
-	});
-}
-
-export function renameList({id, title}) {
-	return new Promise((resolve, reject) => {
-		axios.put(API_URL + '/api/lists/' + id, {title})
-		.then((response) => {
-			console.log('api::renameList success', response.data);
-			resolve('success');
-		})
-		.catch((err) => {
-			console.log('api::renameList error', err.response.data);
 			reject(err.response.data);
 		});
 	});

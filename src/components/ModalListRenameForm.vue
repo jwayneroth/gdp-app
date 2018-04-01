@@ -39,7 +39,7 @@ export default {
 			}
 			this.error ='';
 			
-			this.$store.dispatch('renameList', {id: this.listId, title: this.newName})
+			this.$store.dispatch('renameList', {listId: this.listId, title: this.newName})
 			.then(() => {
 				this.$store.dispatch('hideModal');
 			})

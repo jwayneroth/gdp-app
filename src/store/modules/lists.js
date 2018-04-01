@@ -114,10 +114,15 @@ const mutations = {
 		state.activeList = {...initial_state.activeList};
 	},
 	
+	[types['UNSET_ACTIVE_MEDIA']](state, media) {
+		console.log('UNSET_ACTIVE_MEDIA');
+		const newActive = state.activeList = {...state.activeList};
+		newActive[media.type + 'Ids'] = utils.sliceElement(newActive[media.type + 'Ids'], media.id);
+		delete newActive[media.type + 'ById'][media.id];
+		state.activeList = newActive;
+	},
+	
 	[types['UPDATE_MEDIA']](state, {listIds, media}) {
-		console.log('UPDATE_MEDIA');
-		console.log('listIds', listIds);
-		console.log('media', media);
 		if (media.hasOwnProperty('type')) {
 			state[media.type + "Ids"].push(media.id);
 			listIds.forEach(listId => {
@@ -126,12 +131,12 @@ const mutations = {
 		}
 	},
 	
-	[types['RENAME_LIST']](state, {id, title}) {
-		state.byId[id] = {
-			...state.byId[id],
+	[types['RENAME_LIST']](state, {listId, title}) {
+		state.byId[listId] = {
+			...state.byId[listId],
 			title
 		};
-		if (state.activeList.id === id) state.activeList.title = title;
+		if (state.activeList.id === listId) state.activeList.title = title;
 	},
 	
 	[types['LOGOUT']](state) {
@@ -168,20 +173,35 @@ const actions = {
 	/**
 	 * add a media item to a list or lists
 	 * pass array of list ids and media type and id to add to the list
-	 * vals = {listIds: [], media: {type: "track", id: 45}};
+	 * vals = {listIds: [], media: {type: "track", id: 45, delete: true (optional)}};
 	 */
 	addMediaToList({commit}, {listIds, media}) {
 		
 		const promises = [];
 		
 		listIds.forEach(listId => {
-			promises.push(api.updateList({listId, media}))
+			promises.push(api.updateList(listId, {media}))
 		});
 		
 		return new Promise((resolve, reject) => {
 			Promise.all(promises)
 			.then((res) => {
 				commit(types['UPDATE_MEDIA'], {listIds, media});
+				resolve();
+			})
+			.catch(err => {
+				reject(err);
+			});
+		});
+	},
+	
+	removeMediaFromList({state, commit, dispatch}, {listId, media}) {
+		console.log('store::removeMediaFromList', media);
+		return new Promise((resolve, reject) => {
+			api.updateList(listId, {media})
+			.then(res => {
+				if (state.activeList.id === listId) commit(types['UNSET_ACTIVE_MEDIA'], media);
+				dispatch('getUser');
 				resolve();
 			})
 			.catch(err => {
@@ -224,9 +244,9 @@ const actions = {
 		});
 	},
 	
-	renameList({commit}, vals) {
+	renameList({commit}, {listId, title}) {
 		return new Promise((resolve, reject) => {
-			api.renameList(vals)
+			api.updateList(listId, {title})
 			.then(() => {
 				commit(types['RENAME_LIST'], vals);
 				resolve();
