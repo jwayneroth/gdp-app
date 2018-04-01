@@ -2,53 +2,70 @@ import Vue from 'vue'
 
 import * as types from '../mutation-types';
 
-// initial state
 const initial_state = {
-	player_open: false,
-	player_width: .5,
-	player_last_width: .5,
+	leftOpen: true,
+	rightOpen: true,
+	leftWidth: .6,
+	rightWidth: .4,
+	leftWidthLast: .6,
+	rightWidthLast: .4,
 }
 
-// getters
-const getters = {
-	
-}
+const getters = {}
 
-// actions
-const actions = {
-	
-	togglePlayer({dispatch, commit, state}) {
-		
-		if (state.player_open) {
-			commit(types.SET_PLAYER_LAST_WIDTH, {width: state.player_width});
-			dispatch('resizePlayer', 0);
-		} else {
-			dispatch('resizePlayer', state.player_last_width);
-		}
-		commit(types.TOGGLE_PLAYER);
-	},
-	
-	resizePlayer({commit}, width) {
-		commit(types.SET_PLAYER_WIDTH, {width});
-	},
-}
-
-// mutations
 const mutations = {
-	[types.TOGGLE_PLAYER](state) {
-		state.player_open = !state.player_open;
+	
+	/**
+	 * close a pane
+	 * if other pane open, save widths
+	 */
+	[types['CLOSE_PANE']](state, pane) {
+		
+		if (!state[pane + 'Open']) return;
+		
+		const otherPane = (pane === 'left') ? 'right' : 'left';
+		
+		if (state[otherPane + 'Open']) {
+			state.lastLeftWidth = state.leftWidth;
+			state.lastRightWidth = state.rightWidth;
+			state[otherPane + 'Width'] = 1;
+		}
+		
+		state[pane + 'Width'] = 0;
+		state[pane + 'Open'] = false;
 	},
-	[types.SET_PLAYER_WIDTH](state, {width}) {
-		state.player_width = width;
+	
+	/**
+	 * open a pane
+	 * if other pane open, use saved pane widths
+	 */
+	[types['OPEN_PANE']](state, pane) {
+		
+		if (state[pane + 'Open']) return;
+		
+		const otherPane = (pane === 'left') ? 'right' : 'left';
+		
+		// if other pane open, use saved widths
+		if (state[otherPane + 'Open']) {
+			state[pane + 'Width'] = state[pane + 'WidthLast'];
+			state[otherPane + 'Width'] = state[otherPane + 'WidthLast'];
+		} else {
+			state[pane + 'Width'] = 1;
+		}
+		state[pane + 'Open'] = true;
 	},
-	[types.SET_PLAYER_LAST_WIDTH](state, {width}) {
-		state.player_last_width = width;
-	}
+	
+	[types['RESIZE_PANES']](state, width) {
+		state.leftWidth = state.leftWidthLast = width;
+		state.rightWidth = state.rightWidthLast = 1 - width;
+	},
 }
+
+const actions = {}
 
 export default {
 	state: initial_state,
-	getters,
-	actions,
+	//getters,
+	//actions,
 	mutations
 }

@@ -1,11 +1,10 @@
 export const SET_USER = 'SET_USER';
 export const SET_TOKEN = 'SET_TOKEN';
 export const LOGOUT = 'LOGOUT';
-export const TOGGLE_USER_CHOICE = 'TOGGLE_USER_CHOICE';
 
-export const TOGGLE_PLAYER = 'TOGGLE_PLAYER';
-export const SET_PLAYER_WIDTH = 'SET_PLAYER_WIDTH';
-export const SET_PLAYER_LAST_WIDTH = 'SET_PLAYER_LAST_WIDTH';
+export const CLOSE_PANE = 'CLOSE_PANE';
+export const OPEN_PANE = 'OPEN_PANE';
+export const RESIZE_PANES = 'RESIZE_PANES';
 
 export const GET_FILTER_VALS_SUCCESS = 'GET_FILTER_VALS_SUCCESS';
 export const GET_SHOWS_SUCCESS = 'GET_SHOWS_SUCCESS';

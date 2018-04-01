@@ -1,10 +1,10 @@
 <template>
 	<div class="resizable-panel">
-		<button v-if="!left_open" class="pane-btn pane-open-btn left" v-on:click="openLeft">Open {{left_name}}</button>
-		<button v-if="!right_open" class="pane-btn pane-open-btn right" v-on:click="openRight">Open {{right_name}}</button>
+		<button v-if="!leftOpen" class="pane-btn pane-open-btn left" v-on:click="openLeft">Open {{left_name}}</button>
+		<button v-if="!rightOpen" class="pane-btn pane-open-btn right" v-on:click="openRight">Open {{right_name}}</button>
 		<div class="pane-container">
-			<div ref="left_pane" :class="[left_open ? 'open' : 'closed', 'pane', 'left-pane']" :style="style.left_pane">
-				<button v-if="left_open" class="pane-btn pane-close-btn" v-on:click="closeLeft">
+			<div ref="leftPane" class="pane left-pane" :class="leftOpen ? 'open' : 'closed'" :style="style.leftPane">
+				<button v-if="leftOpen" class="pane-btn pane-close-btn" v-on:click="closeLeft">
 					<span class="fa fa-close" />
 				</button>
 				<div class="inner">
@@ -16,7 +16,7 @@
 			<div 
 				v-if="resizable"
 				ref="resizer"
-				:class="resizer_class"
+				:class="resizerClass"
 				:style="style.resizer"
 				v-on:touchstart.stop.prevent="e=>false"
 				v-on:touchmove="handleTouchMove"
@@ -24,8 +24,8 @@
 			>
 				<span class="handle pane-btn"/>
 			</div>
-			<div ref="right_pane" :class="[right_open ? 'open' : 'closed', 'pane', 'right-pane']" :style="style.right_pane">
-				<button v-if="right_open" class="pane-btn pane-close-btn" v-on:click="closeRight">
+			<div ref="rightPane" class="pane right-pane" :class="rightOpen ? 'open' : 'closed'" :style="style.rightPane">
+				<button v-if="rightOpen" class="pane-btn pane-close-btn" v-on:click="closeRight">
 					<span class="fa fa-close" />
 				</button>
 				<div class="inner">
@@ -39,6 +39,7 @@
 </template>
 
 <script>
+import {mapState} from 'vuex';
 
 export default {
 	name: 'resizable-panel',
@@ -49,32 +50,39 @@ export default {
 	},
 	data: function () {
 		return {
-			resizable: true,
 			resizing: false,
-			left_open: true,
-			right_open: true,
-			lp_width: .6,
-			rp_width: .4,
-			rszr_left: .6,
 		}
 	},
 	computed: {
+		
+		...mapState({
+			leftOpen: state => state.ui.leftOpen,
+			rightOpen: state => state.ui.rightOpen,
+			leftWidth: state => state.ui.leftWidth,
+			rightWidth: state => state.ui.rightWidth,
+		}),
+		
 		style: function () {
 			return {
-				left_pane: {
-					width: (this.lp_width * 100) + '%',
+				leftPane: {
+					width: (this.leftWidth * 100) + '%',
 					left: 0,
 				},
-				right_pane: {
-					width: (this.rp_width * 100) + '%',
-					left: (this.lp_width * 100) + '%',
+				rightPane: {
+					width: (this.rightWidth * 100) + '%',
+					left: (this.leftWidth * 100) + '%',
 				},
 				resizer: {
-					left: (this.lp_width * 100) + '%',
+					left: (this.leftWidth * 100) + '%',
 				}
 			}
 		},
-		resizer_class: function() {
+		
+		resizable: function() {
+			return (this.leftOpen && this.rightOpen) ? true : false;
+		},
+		
+		resizerClass: function() {
 			let c = 'resizer';
 			if (this.resizing) c += ' active';
 			return c;
@@ -82,37 +90,10 @@ export default {
 	},
 	methods: {
 		
-		closeLeft: function() {
-			this.resizable = this.left_open = false;
-			this.lp_width = 0;
-			if (this.right_open) this.rp_width = 1;
-		},
-		
-		openLeft: function() {
-			this.left_open = true;
-			if (this.right_open) {
-				this.resizable = true;
-				this.lp_width = this.rp_width = .5;
-			} else {
-				this.lp_width = 1;
-			}
-		},
-		
-		closeRight: function() {
-			this.resizable = this.right_open = false;
-			if (this.left_open) this.lp_width = 1;
-			this.rp_width = 0;
-		},
-		
-		openRight: function() {
-			this.right_open = true;
-			if (this.left_open) {
-				this.resizable = true;
-				this.lp_width = this.rp_width = .5;
-			} else {
-				this.rp_width = 1;
-			}
-		},
+		closeLeft: function() { this.$store.commit('CLOSE_PANE', 'left'); },
+		closeRight: function() { this.$store.commit('CLOSE_PANE', 'right');},
+		openLeft: function() { this.$store.commit('OPEN_PANE', 'left'); },
+		openRight: function() { this.$store.commit('OPEN_PANE', 'right'); },
 		
 		handleTouchMove: function(e) {
 			//console.log('handleTouchMove', e);
@@ -126,8 +107,7 @@ export default {
 				} else if (lw > .8) {
 					lw = .8;
 				}
-				this.lp_width = lw;
-				this.rp_width = 1 - lw;
+				this.$store.commit('RESIZE_PANES', lw);
 			}
 		},
 		
@@ -154,8 +134,7 @@ export default {
 			} else if (lw > .8) {
 				lw = .8;
 			}
-			this.lp_width = lw;
-			this.rp_width = 1 - lw;
+			this.$store.commit('RESIZE_PANES', lw);
 			//console.log('mouseX: ' + mouseX + ' elX: ' + elX + ' elW: ' + elW);
 		},
 		
@@ -167,32 +146,17 @@ export default {
 		},
 		
 		resizerHeight: function() {
-			let lh = (this.left_open) ? this.$refs.left_pane.offsetHeight : 0;
-			let rh = (this.right_open) ? this.$refs.right_pane.offsetHeight : 0;
+			let lh = (this.leftOpen) ? this.$refs.leftPane.offsetHeight : 0;
+			let rh = (this.rightOpen) ? this.$refs.rightPane.offsetHeight : 0;
 			let taller = (lh > rh) ? lh : rh;
 			//console.log('resizerHeight lh: ' + lh + ' rh: ' + rh + ' taller: ' + taller);
 			if (lh === taller) this.rp_height = lh;
 			this.resizer_height = taller;
 		}
 	},
-	created: function() {
-		
-	},
-	/*mounted: function() {
-		//document.documentElement.addEventListener('mousemove', this.handleMove, true);
-		//document.documentElement.addEventListener('mouseup', this.handleUp, true);
-		//setTimeout(this.resizerHeight, 200);
-	},
-	updated: function() {
-		//setTimeout(this.resizerHeight, 200);
-	},*/
 	beforeDestroy: function () {
 		document.documentElement.removeEventListener('mousemove', this.handleMove, true)
 		document.documentElement.removeEventListener('mouseup', this.handleUp, true)
 	},
 }
 </script>
-
-<style lang="scss">
-
-</style>

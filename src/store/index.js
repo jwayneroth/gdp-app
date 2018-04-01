@@ -30,6 +30,7 @@ export default new Vuex.Store({
 			key: 'gdp',
 			paths: [
 				'user',
+				'ui',
 				'playlist.track_ids',
 				'playlist.tracks_by_id',
 			]
