@@ -39,7 +39,13 @@
 					:class="(currentTrack && t.id === currentTrack.id) && 'active'"
 				>
 					<td>
-						<audio v-if="shouldPreload(idx)" preload="auto" :src="t.file" style="display:none;" @canplaythrough="onAudioLoaded(t)" />
+						<audio
+							v-if="shouldPreload(idx)"
+							preload="auto"
+							:src="t.file"
+							style="display:none;"
+							@canplaythrough="onAudioLoaded(t)"
+						/>
 						<span class="title" v-on:click="onTrackClick(t)">{{t.title}}</span>
 					</td>
 					<td class="handle"><span class="fa fa-arrows"></span></td>

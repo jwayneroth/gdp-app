@@ -29,7 +29,13 @@
 				</b-button-group>
 			</b-btn-toolbar>
 		</div>
-		<audio v-bind:id="playerId" ref="audiofile" :src="file" preload="auto" style="display:none;"></audio>
+		<audio
+			:id="playerId"
+			ref="audiofile"
+			:src="file"
+			preload="none"
+			style="display:none;"
+		/>
 	</div>
 </template>
 
@@ -122,12 +128,23 @@ export default {
 		play: function(force = false) {
 			console.log('AudioControls::play');
 			if (this.playing && !force) return;
-			this.paused = false;
-			this.audio.play();
-			this.playing = true;
+			
+			const playcall = this.audio.play(); //this.audio.play();
+			
+			if (playcall === undefined) return;
+			
+			playcall
+			.then(() => {
+				console.log('audio play allowed!');
+				this.paused = false;
+				this.playing = true;
+			})
+			.catch(error => {
+				console.log('audio play was prevented by ios :(');
+			});
 		},
 		pause: function() {
-			console.log('AudioControls::pause');
+			console.log('AudioControls::pause ' + this.paused);
 			if (!this.file) {
 				console.log('play called without file!');
 				this.onEmptyPlay();
@@ -141,10 +158,11 @@ export default {
 			window.open(this.file, 'download');
 		},
 		_handleLoaded: function() {
+			console.log('AudioControls::_handleLoaded readyState: ' +  this.audio.readyState + ' autoPlay: ' + this.autoPlay);
 			if (this.audio.readyState >= 2) {
-				if (this.autoPlay) {
+				/*if (this.autoPlay) {
 					this.play(true);
-				}
+				}*/
 				this.loaded = true
 				this.totalDuration = parseInt(this.audio.duration)
 			} else {
@@ -175,6 +193,20 @@ export default {
 			this.audio.addEventListener('pause', this._handlePlayPause);
 			this.audio.addEventListener('play', this._handlePlayPause);
 			this.audio.addEventListener('ended', this._handleEnded);
+		},
+	},
+	watch: {
+		file: function(newFile, oldFile) {
+			console.log('AudioControls::file watcher ' + oldFile + ' ' + newFile);
+			if (newFile && newFile !== '') {
+				//this.audio.load();
+				//this.audio.play();
+				this.$nextTick(() => {
+					this.audio.load();
+					//this.audio.play();
+					this.play(true);
+				});
+			}
 		},
 	},
 	mounted: function() {
