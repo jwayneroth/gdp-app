@@ -4,7 +4,7 @@
 			<b-btn-toolbar class="toolbar d-flex align-items-end">
 				<b-button-group class="play-wrapper mx-2 mb-3">
 					<b-btn @click="onPrevClick" :disabled="onPrevClick === null"><span :class="[ paused ? 'active' : '', 'fa-backward', 'fa']"/></b-btn>
-					<b-btn @click="pause"><span :class="[paused ? 'fa-play' : 'fa-pause', 'fa']"/></b-btn>
+					<b-btn @click="playPauseClick"><span :class="[paused ? 'fa-play' : 'fa-pause', 'fa']"/></b-btn>
 					<b-btn @click="onNextClick" :disabled="onNextClick === null"><span :class="[ paused ? 'active' : '', 'fa-forward', 'fa']"/></b-btn>
 				</b-button-group>
 				<div class="progress-wrapper mx-2 mb-3">
@@ -70,7 +70,7 @@ export default {
 			return this.audio ? convertTimeHHMMSS(this.totalDuration) : ''
 		},
 		playerId: function() {
-			return 'player-' + this.uuid
+			return 'player-' + this.uuid;
 		},
 	},
 	data () {
@@ -89,6 +89,7 @@ export default {
 		}
 	},
 	methods: {
+		
 		setPosition: function name (e) {
 			const tag = e.target;
 			if (!this.file) return;
@@ -98,6 +99,7 @@ export default {
 			const seekPos = (e.clientX - pos.left) / pos.width;
 			this.audio.currentTime = parseInt(this.audio.duration * seekPos);
 		},
+		
 		toggleMute: function() {
 			this.isMuted = !this.isMuted;
 			if (this.isMuted) {
@@ -108,30 +110,38 @@ export default {
 				this.updateVolumeBars(this.volumeDiv);
 			}
 		},
+		
 		setVolume: function(div) {
 			this.audio.volume = div * 20 / 100;
 			this.volumeDiv = div;
 			if (this.isMuted) this.isMuted = false;
 			this.updateVolumeBars(div);
 		},
+		
 		updateVolumeBars: function(div) {
 			this.volumeBars.forEach((bar, idx) => {
 				bar.className = (idx <= (div - 1)) ? 'active' : '';
 			});
 		},
+		
 		stop: function() {
 			this.playing = false;
 			this.paused = true;
 			this.audio.pause();
 			this.audio.currentTime = 0;
 		},
+		
 		play: function(force = false) {
 			console.log('AudioControls::play');
 			if (this.playing && !force) return;
 			
-			const playcall = this.audio.play(); //this.audio.play();
+			const playcall = this.audio.play();
 			
-			if (playcall === undefined) return;
+			if (playcall === undefined) {
+				this.paused = false;
+				this.playing = true;
+				return;
+			}
 			
 			playcall
 			.then(() => {
@@ -143,20 +153,30 @@ export default {
 				console.log('audio play was prevented by ios :(');
 			});
 		},
-		pause: function() {
-			console.log('AudioControls::pause ' + this.paused);
+		
+		playPauseClick: function() {
+			console.log('AudioControls::playPauseClick ' + this.paused);
+			
 			if (!this.file) {
 				console.log('play called without file!');
+				
+				// this play call will do nothing usually, and will be blocked on iOS
+				// but it allows the next play call to work on iOS ;(
+				const playcall = this.audio.play();
+				if (playcall !== undefined) playcall.then(() => null).catch(err => null);
+				
 				this.onEmptyPlay();
 				return;
 			}
 			this.paused = !this.paused;
 			(this.paused) ? this.audio.pause() : this.audio.play();
 		},
+		
 		download: function() {
 			this.stop();
 			window.open(this.file, 'download');
 		},
+		
 		_handleLoaded: function() {
 			console.log('AudioControls::_handleLoaded readyState: ' +  this.audio.readyState + ' autoPlay: ' + this.autoPlay);
 			if (this.audio.readyState >= 2) {
@@ -169,12 +189,14 @@ export default {
 				throw new Error('Failed to load sound file')
 			}
 		},
+		
 		_handlePlayingUI: function(e) {
 			let currTime = parseInt(this.audio.currentTime);
 			let percentage = parseInt((currTime / this.totalDuration) * 100);
 			this.progressStyle = `width:${percentage}%;`;
 			this.currentTime = convertTimeHHMMSS(currTime);
 		},
+		
 		_handlePlayPause: function(e) {
 			if (e.type === 'pause' && this.playing === false) {
 				this.progressStyle = `width:0%;`;
@@ -182,11 +204,13 @@ export default {
 				this.paused = true;
 			}
 		},
+		
 		_handleEnded: function(e) {
 			this.paused = true;
 			this.playing = false;
 			this.$props.onAudioEnded();
 		},
+		
 		init: function() {
 			this.audio.addEventListener('timeupdate', this._handlePlayingUI);
 			this.audio.addEventListener('loadeddata', this._handleLoaded);
@@ -199,11 +223,8 @@ export default {
 		file: function(newFile, oldFile) {
 			console.log('AudioControls::file watcher ' + oldFile + ' ' + newFile);
 			if (newFile && newFile !== '') {
-				//this.audio.load();
-				//this.audio.play();
 				this.$nextTick(() => {
 					this.audio.load();
-					//this.audio.play();
 					this.play(true);
 				});
 			}
@@ -225,7 +246,3 @@ export default {
 	}
 }
 </script>
-
-<style lang="scss">
-
-</style>
