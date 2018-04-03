@@ -15,6 +15,27 @@ Vue.use(Vuex);
 
 const debug = process.env.NODE_ENV !== 'production';
 
+let plugins;
+
+// create localStorage plugin in try statement
+// allows for Safari Private Mode usage
+try {
+	plugins = [
+		createPersistedState({
+			key: 'gdp',
+			paths: [
+				'user',
+				'ui',
+				'playlist.track_ids',
+				'playlist.tracks_by_id',
+			],
+			//storage: window.localStorage,
+		}),
+	];
+} catch (err) {
+	plugins = [];
+}
+
 export default new Vuex.Store({
 	modules: {
 		user,
@@ -25,15 +46,5 @@ export default new Vuex.Store({
 		modal,
 	},
 	strict: debug,
-	plugins: [
-		createPersistedState({
-			key: 'gdp',
-			paths: [
-				'user',
-				'ui',
-				'playlist.track_ids',
-				'playlist.tracks_by_id',
-			]
-		})
-	]
+	plugins,
 })
